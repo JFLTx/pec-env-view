@@ -69,6 +69,15 @@
       "minzoom": 11,
       "maxzoom": 18
     },
+    "farmland": {
+      "type": "vector",
+      "tiles": [
+        "https://tiles.arcgis.com/tiles/GfBANWpVjDJnX8Qz/arcgis/rest/services/farmland/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+      ],
+      "tileSize": 512,
+      "minzoom": 11,
+      "maxzoom": 18
+    },
     "terrain-rgb": {
       "url": "https://api.maptiler.com/tiles/terrain-rgb-v2/tiles.json?key=VR7FKTd6lXA4PKRQVzfY",
       "type": "raster-dem"
@@ -96,6 +105,10 @@
     "water-lines": {
       "type": "geojson",
       "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Water_WGS84WM/MapServer/11/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "sewer-lines": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Wastewater_WGS84WM/MapServer/7/query?where=1%3D1&outFields=KPDES,SYS_NAME,PURPOSE,STPNAME,SIZE,YEARCON,TYPE,MATERIAL,CSO,AGENCY,ADDNAME&f=geojson"
     },
     "frs-interests": {
       "type": "geojson",
@@ -137,6 +150,10 @@
       "type": "geojson",
       "data": "./data/ky-erase.geojson"
     },
+    "critical-habitat": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_USFWS_Critical_Habitat_WGS84WM/MapServer/0/query?where=1%3D1&outFields=Subunit,COMNAME,STATUS,FEDREG,EFFECTDATE,ACCURACY,VACATEDATE&f=geojson"
+    },
     "nleb": {
       "type": "geojson",
       "data": "https://services5.arcgis.com/GfBANWpVjDJnX8Qz/arcgis/rest/services/NLEB_Sensitive_Areas/FeatureServer/0/query?where=1%3D1&outFields=Habitat_Ty&f=geojson"
@@ -153,9 +170,17 @@
       "type": "geojson",
       "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Quad_Index_Grid_WGS84WM/MapServer/0/query?where=1%3D1&outFields=LABEL_NAME,USGS_CODE,Box_url&f=geojson"
     },
+    "state-forests": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_StateForests_WGS84WM/MapServer/1/query?where=1%3D1&outFields=NAME,ACRES&f=geojson"
+    },
     "park-labels": {
       "type": "geojson",
       "data": "./data/park-labels.geojson"
+    },
+    "industrial-site": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Industrial_Site_Boundaries_WGS84WM/MapServer/0/query?where=1%3D1&outFields=SITE_ID,MAPNAME,ACRES&f=geojson"
     },
     "terrainSource": {
       "type": "raster-dem",
@@ -271,6 +296,104 @@
       "filter": ["all", ["!in", "nth_line", 5, 10], ["!has", "glacier"]]
     },
     {
+      "id": "Farmland Outline",
+      "type": "line",
+      "source": "farmland",
+      "source-layer": "Farmland Classification",
+      "minzoom": 10,
+      "paint": {
+        "line-color": [
+          "match",
+          ["get", "FARMCLAC"],
+          "All areas are prime farmland",
+          "#8fb89a",
+          "Farmland of statewide importance",
+          "#8fb89a",
+          "#d8cf8a"
+        ],
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0.6,
+          12,
+          0.9,
+          14,
+          1.1
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0.2,
+          12,
+          0.4,
+          14,
+          0.55
+        ]
+      }
+    },
+    {
+      "id": "Farmland Fill",
+      "type": "fill",
+      "source": "farmland",
+      "source-layer": "Farmland Classification",
+      "minzoom": 10,
+      "paint": {
+        "fill-color": [
+          "match",
+          ["get", "FARMCLAC"],
+          "All areas are prime farmland",
+          "#4da85f",
+          "Farmland of statewide importance",
+          "#4da85f",
+          "#d9c85f"
+        ],
+        "fill-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0.12,
+          12,
+          0.45,
+          14,
+          0.8
+        ]
+      }
+    },
+    {
+      "id": "Industrial sites",
+      "type": "line",
+      "source": "industrial-site",
+      "minzoom": 11,
+      "paint": {
+        "line-color": "#ff5600",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          1.5,
+          12,
+          2.15,
+          14,
+          2.5
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.25,
+          13,
+          0.75
+        ]
+      }
+    },
+    {
       "id": "Cemetery Fill",
       "type": "fill",
       "source": "cemetery",
@@ -382,13 +505,66 @@
       }
     },
     {
+      "id": "state-forests-fill",
+      "type": "fill",
+      "source": "state-forests",
+      "minzoom": 11,
+      "paint": {
+        "fill-color": "#3fa34d",
+        "fill-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.1,
+          12,
+          0.25,
+          14,
+          0.6
+        ]
+      }
+    },
+    {
+      "id": "state-forests-outline",
+      "type": "line",
+      "source": "state-forests",
+      "minzoom": 11,
+      "paint": {
+        "line-color": "#ebf4fc",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          1,
+          12,
+          1.15,
+          14,
+          1.25
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.25,
+          12,
+          0.75,
+          14,
+          0.5,
+          15,
+          0
+        ]
+      }
+    },
+    {
       "id": "wetlands-outline",
       "type": "line",
       "source": "wetlands",
       "source-layer": "Wetlands",
       "paint": {
         "line-color": "#557d74",
-        "line-width": 1.5,
+        "line-width": 2.5,
         "line-opacity": 0.75
       }
     },
@@ -399,8 +575,8 @@
       "source-layer": "Wetlands",
       "paint": {
         "line-color": "#cfe7df",
-        "line-width": 4,
-        "line-opacity": 0.3
+        "line-width": 5,
+        "line-opacity": 0.45
       }
     },
     {
@@ -445,7 +621,26 @@
       }
     },
     {
-      "id": "Water-lines",
+      "id": "critical-habitat-outline",
+      "type": "line",
+      "source": "critical-habitat",
+      "paint": {
+        "line-color": "#b50202",
+        "line-width": 2,
+        "line-opacity": 0.5
+      }
+    },
+    {
+      "id": "critical-habitat-fill",
+      "type": "fill",
+      "source": "critical-habitat",
+      "paint": {
+        "fill-color": "#cf3529",
+        "fill-opacity": 0.8
+      }
+    },
+    {
+      "id": "Waterway",
       "type": "line",
       "source": "maptiler_planet",
       "source-layer": "waterway",
@@ -775,6 +970,74 @@
       },
       "paint": {
         "line-color": "#00ffff",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          1,
+          12,
+          1.8,
+          14,
+          2.5
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.5,
+          12,
+          0.8,
+          14,
+          1
+        ]
+      }
+    },
+    {
+      "id": "Sewer Lines casing",
+      "type": "line",
+      "source": "sewer-lines",
+      "minzoom": 11,
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#8e9091",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          2,
+          12,
+          2.8,
+          14,
+          3.5
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.5,
+          12,
+          0.8,
+          14,
+          1
+        ]
+      }
+    },
+    {
+      "id": "Sewer Lines",
+      "type": "line",
+      "source": "water-lines",
+      "minzoom": 11,
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#00FF00",
         "line-width": [
           "interpolate",
           ["linear"],

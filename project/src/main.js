@@ -182,6 +182,11 @@ const popupLayerConfig = [
   { id: "spring", label: "Spring Water" },
   { id: "wetlands-fill", label: "NWI Wetlands" },
   { id: "sinkhole-fill", label: "Sinkholes" },
+  { id: "critical-habitat-fill", label: "USFWS Critical Habitat" },
+  { id: "Water Lines", label: "Water Lines" },
+  { id: "Sewer Lines", label: "Sewer Lines" },
+  { id: "state-forests-fill", label: "KY State Forests" },
+  { id: "Farmland Fill", label: "Farmland Classification" },
 ];
 
 const popupLayerIds = popupLayerConfig.map((layer) => layer.id);
