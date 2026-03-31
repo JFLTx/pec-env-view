@@ -1,0 +1,1428 @@
+{
+  "version": 8,
+  "id": "933ba1d3-2d03-46b6-8ed9-9eb848c5b585",
+  "name": "PEC Locations Base",
+  "sources": {
+    "mask": {
+      "type": "geojson",
+      "data": "./data/ky-erase.geojson"
+    },
+    "pec": {
+      "type": "geojson",
+      "data": "./data/pec-locations.geojson"
+    },
+    "contours": {
+      "url": "https://api.maptiler.com/tiles/contours-v2/tiles.json?key=VR7FKTd6lXA4PKRQVzfY",
+      "type": "vector"
+    },
+    "ky-noise": {
+      "type": "raster",
+      "tiles": [
+        "https://tiles.arcgis.com/tiles/GfBANWpVjDJnX8Qz/arcgis/rest/services/ky_transportation_noise/MapServer/tile/{z}/{y}/{x}"
+      ],
+      "tileSize": 256,
+      "minzoom": 6,
+      "maxzoom": 17
+    },
+    "noise-polygons": {
+      "type": "vector",
+      "tiles": [
+        "https://tiles.arcgis.com/tiles/GfBANWpVjDJnX8Qz/arcgis/rest/services/ky_noise_polygons/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+      ],
+      "tileSize": 512,
+      "minzoom": 11,
+      "maxzoom": 17
+    },
+    "cemetery": {
+      "type": "vector",
+      "tiles": [
+        "https://tiles.arcgis.com/tiles/GfBANWpVjDJnX8Qz/arcgis/rest/services/khc_cemeteries/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+      ],
+      "tileSize": 512,
+      "minzoom": 11,
+      "maxzoom": 17
+    },
+    "ky-parks": {
+      "type": "vector",
+      "tiles": [
+        "https://tiles.arcgis.com/tiles/GfBANWpVjDJnX8Qz/arcgis/rest/services/ky_parks/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+      ],
+      "tileSize": 512,
+      "minzoom": 11,
+      "maxzoom": 17
+    },
+    "wetlands": {
+      "type": "vector",
+      "tiles": [
+        "https://tiles.arcgis.com/tiles/GfBANWpVjDJnX8Qz/arcgis/rest/services/Wetlands/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+      ],
+      "tileSize": 512,
+      "minzoom": 11,
+      "maxzoom": 18
+    },
+    "sinkholes": {
+      "type": "vector",
+      "tiles": [
+        "https://tiles.arcgis.com/tiles/GfBANWpVjDJnX8Qz/arcgis/rest/services/Sinkholes/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+      ],
+      "tileSize": 512,
+      "minzoom": 11,
+      "maxzoom": 18
+    },
+    "terrain-rgb": {
+      "url": "https://api.maptiler.com/tiles/terrain-rgb-v2/tiles.json?key=VR7FKTd6lXA4PKRQVzfY",
+      "type": "raster-dem"
+    },
+    "maptiler_planet": {
+      "url": "https://api.maptiler.com/tiles/v3/tiles.json?key=VR7FKTd6lXA4PKRQVzfY",
+      "type": "vector"
+    },
+    "hillshade": {
+      "type": "raster",
+      "tiles": [
+        "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_MultiDirectional_Hillshade_WGS84WM/MapServer/tile/{z}/{y}/{x}"
+      ],
+      "tileSize": 256,
+      "maxzoom": 20
+    },
+    "aerial": {
+      "type": "raster",
+      "tiles": [
+        "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Imagery_Phase3_3IN_WGS84WM/MapServer/tile/{z}/{y}/{x}"
+      ],
+      "tileSize": 256,
+      "maxzoom": 21
+    },
+    "water-lines": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Water_WGS84WM/MapServer/11/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "frs-interests": {
+      "type": "geojson",
+      "data": "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/FRS_INTERESTS_RCRA_ACTIVE/FeatureServer/0/query?where=STATE_CODE%3D%27KY%27&outFields=*&f=geojson"
+    },
+    "schools": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Schools_WGS84WM/MapServer/0/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "libraries": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Libraries_WGS84WM/MapServer/0/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "airports": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Airports_WGS84WM/MapServer/0/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "cemetery-point": {
+      "type": "geojson",
+      "data": "https://services5.arcgis.com/GfBANWpVjDJnX8Qz/arcgis/rest/services/khc_cemeteries_point/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "churches": {
+      "type": "geojson",
+      "data": "https://services5.arcgis.com/GfBANWpVjDJnX8Qz/arcgis/rest/services/ky_churches/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "spring-source": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Water_WGS84WM/MapServer/4/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "well-sources": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Water_WGS84WM/MapServer/9/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "pump-station": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Water_WGS84WM/MapServer/6/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "ky-mask": {
+      "type": "geojson",
+      "data": "./data/ky-erase.geojson"
+    },
+    "nleb": {
+      "type": "geojson",
+      "data": "https://services5.arcgis.com/GfBANWpVjDJnX8Qz/arcgis/rest/services/NLEB_Sensitive_Areas/FeatureServer/0/query?where=1%3D1&outFields=Habitat_Ty&f=geojson"
+    },
+    "spring": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_WaterResources_WGS84WM/MapServer/2/query?where=1%3D1&outFields=*&f=geojson"
+    },
+    "indianaBat": {
+      "type": "geojson",
+      "data": "https://services5.arcgis.com/GfBANWpVjDJnX8Qz/arcgis/rest/services/IndianaBat_Sensitive_Areas/FeatureServer/0/query?where=1%3D1&outFields=Habitat_Ty&f=geojson"
+    },
+    "usgs-quad-grid": {
+      "type": "geojson",
+      "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Quad_Index_Grid_WGS84WM/MapServer/0/query?where=1%3D1&outFields=LABEL_NAME,USGS_CODE,Box_url&f=geojson"
+    },
+    "park-labels": {
+      "type": "geojson",
+      "data": "./data/park-labels.geojson"
+    },
+    "terrainSource": {
+      "type": "raster-dem",
+      "url": "terrain.json",
+      "tileSize": 256
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#f5f5f5",
+        "background-opacity": 1
+      }
+    },
+    {
+      "id": "hillshade",
+      "type": "hillshade",
+      "source": "terrain-rgb",
+      "minzoom": 3,
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "hillshade-accent-color": "hsl(223, 14%, 92%)",
+        "hillshade-exaggeration": {
+          "stops": [
+            [6, 0.5],
+            [12, 0.6],
+            [14, 0.7]
+          ]
+        },
+        "hillshade-shadow-color": "hsl(201, 10%, 81%)",
+        "hillshade-highlight-color": "hsl(245, 6%, 54%)"
+      }
+    },
+    {
+      "id": "aerial",
+      "type": "raster",
+      "source": "aerial",
+      "minzoom": 13,
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "raster-brightness-min": 0.3,
+        "raster-saturation": 0.35,
+        "raster-hue-rotate": 10,
+        "raster-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0,
+          12,
+          0.35,
+          13,
+          0.7,
+          14,
+          0.92,
+          15,
+          1
+        ]
+      }
+    },
+    {
+      "id": "Contour index",
+      "type": "line",
+      "source": "contours",
+      "source-layer": "contour_ft",
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#525252",
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          7,
+          0.01,
+          8,
+          0.05,
+          10,
+          0.15,
+          12,
+          0.5
+        ],
+        "line-width": 1.5
+      },
+      "filter": ["all", ["in", "nth_line", 5, 10], ["!has", "glacier"]]
+    },
+    {
+      "id": "Contour",
+      "type": "line",
+      "source": "contours",
+      "source-layer": "contour_ft",
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#525252",
+        "line-opacity": [
+          "step",
+          ["zoom"],
+          ["match", ["get", "nth_line"], 0, 0, 0.55],
+          15,
+          0.5
+        ],
+        "line-width": 0.5
+      },
+      "filter": ["all", ["!in", "nth_line", 5, 10], ["!has", "glacier"]]
+    },
+    {
+      "id": "Cemetery Fill",
+      "type": "fill",
+      "source": "cemetery",
+      "source-layer": "KHC Cemeteries",
+      "minzoom": 11,
+      "paint": {
+        "fill-color": "#65826d",
+        "fill-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.1,
+          12,
+          0.25,
+          14,
+          0.6
+        ]
+      }
+    },
+    {
+      "id": "Cemetery Outline",
+      "type": "line",
+      "source": "cemetery",
+      "source-layer": "KHC Cemeteries",
+      "minzoom": 11,
+      "paint": {
+        "line-color": "#cfd6dd",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.8,
+          12,
+          1,
+          14,
+          1.1
+        ],
+        "line-dasharray": [2, 2],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.2,
+          12,
+          0.5,
+          14,
+          0.4,
+          15,
+          0
+        ]
+      }
+    },
+    {
+      "id": "KY Parks Fill",
+      "type": "fill",
+      "source": "ky-parks",
+      "source-layer": "KY_Parks",
+      "minzoom": 11,
+      "paint": {
+        "fill-color": "#3fa34d",
+        "fill-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.1,
+          12,
+          0.25,
+          14,
+          0.6
+        ]
+      }
+    },
+    {
+      "id": "KY Parks Outline",
+      "type": "line",
+      "source": "ky-parks",
+      "source-layer": "KY_Parks",
+      "minzoom": 11,
+      "paint": {
+        "line-color": "#ebf4fc",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          1,
+          12,
+          1.15,
+          14,
+          1.25
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.25,
+          12,
+          0.75,
+          14,
+          0.5,
+          15,
+          0
+        ]
+      }
+    },
+    {
+      "id": "wetlands-outline",
+      "type": "line",
+      "source": "wetlands",
+      "source-layer": "Wetlands",
+      "paint": {
+        "line-color": "#557d74",
+        "line-width": 1.5,
+        "line-opacity": 0.75
+      }
+    },
+    {
+      "id": "wetlands-outline-soft",
+      "type": "line",
+      "source": "wetlands",
+      "source-layer": "Wetlands",
+      "paint": {
+        "line-color": "#cfe7df",
+        "line-width": 4,
+        "line-opacity": 0.3
+      }
+    },
+    {
+      "id": "wetlands-fill",
+      "type": "fill",
+      "source": "wetlands",
+      "source-layer": "Wetlands",
+      "paint": {
+        "fill-color": [
+          "match",
+          ["get", "WETLAND_TYPE"],
+          "Freshwater Emergent Wetland",
+          "#86c5a3",
+          "Freshwater Forested/Shrub Wetland",
+          "#5f8f6f",
+          "Riverine",
+          "#5aa6d1",
+          "#999999"
+        ],
+        "fill-opacity": 0.9
+      }
+    },
+    {
+      "id": "sinkhole-outline",
+      "type": "line",
+      "source": "sinkholes",
+      "source-layer": "Sinkholes",
+      "paint": {
+        "line-color": "#ff0000",
+        "line-width": 2,
+        "line-opacity": 0.5
+      }
+    },
+    {
+      "id": "sinkhole-fill",
+      "type": "fill",
+      "source": "sinkholes",
+      "source-layer": "Sinkholes",
+      "paint": {
+        "fill-color": "#ed6b61",
+        "fill-opacity": 0.8
+      }
+    },
+    {
+      "id": "Water-lines",
+      "type": "line",
+      "source": "maptiler_planet",
+      "source-layer": "waterway",
+      "layout": {
+        "visibility": "visible",
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#357ef2",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          6,
+          0.4,
+          10,
+          0.8,
+          14,
+          1.6,
+          18,
+          3
+        ],
+        "line-opacity": 0.8
+      }
+    },
+    {
+      "id": "Water-fill",
+      "type": "fill",
+      "source": "maptiler_planet",
+      "source-layer": "water",
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "fill-color": "#357ef2",
+        "fill-opacity": 0.9
+      },
+      "filter": ["==", "$type", "Polygon"]
+    },
+    {
+      "id": "Road-minor",
+      "type": "line",
+      "source": "maptiler_planet",
+      "source-layer": "transportation",
+      "minzoom": 9,
+      "layout": {
+        "visibility": "visible",
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#ebf4fc",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0.6,
+          12,
+          1.1,
+          14,
+          2,
+          16,
+          3.2,
+          18,
+          5.5
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0.7,
+          12,
+          0.68,
+          13,
+          0.62,
+          14,
+          0.55,
+          15,
+          0.4,
+          16,
+          0.3,
+          18,
+          0.1
+        ]
+      },
+      "filter": [
+        "all",
+        ["==", "$type", "LineString"],
+        [
+          "in",
+          "class",
+          "minor",
+          "service",
+          "street",
+          "street_limited",
+          "path",
+          "track"
+        ]
+      ]
+    },
+
+    {
+      "id": "Road-major-casing",
+      "type": "line",
+      "source": "maptiler_planet",
+      "source-layer": "transportation",
+      "minzoom": 7,
+      "layout": {
+        "visibility": "visible",
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#5f88a8",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          7,
+          1.2,
+          10,
+          2.4,
+          12,
+          4.1,
+          14,
+          6.8,
+          16,
+          11,
+          18,
+          17
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          7,
+          0.72,
+          10,
+          0.7,
+          12,
+          0.62,
+          13,
+          0.5,
+          14,
+          0.35,
+          15,
+          0.2,
+          16,
+          0.1,
+          18,
+          0
+        ]
+      },
+      "filter": [
+        "all",
+        ["==", "$type", "LineString"],
+        ["in", "class", "primary", "secondary", "tertiary", "trunk", "motorway"]
+      ]
+    },
+    {
+      "id": "Road-major",
+      "type": "line",
+      "source": "maptiler_planet",
+      "source-layer": "transportation",
+      "minzoom": 7,
+      "layout": {
+        "visibility": "visible",
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#ebf4fc",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          7,
+          0.7,
+          10,
+          1.4,
+          12,
+          2.6,
+          14,
+          4.8,
+          16,
+          8,
+          18,
+          13
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          7,
+          0.72,
+          10,
+          0.7,
+          12,
+          0.62,
+          13,
+          0.5,
+          14,
+          0.35,
+          15,
+          0.2,
+          16,
+          0.1,
+          18,
+          0
+        ]
+      },
+      "filter": [
+        "all",
+        ["==", "$type", "LineString"],
+        ["in", "class", "primary", "secondary", "tertiary", "trunk", "motorway"]
+      ]
+    },
+    {
+      "id": "Road-bridge",
+      "type": "line",
+      "source": "maptiler_planet",
+      "source-layer": "transportation",
+      "minzoom": 7,
+      "layout": {
+        "visibility": "visible",
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#ebf4fc",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          1.4,
+          12,
+          2.7,
+          14,
+          5,
+          16,
+          8.3,
+          18,
+          13
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          7,
+          0.72,
+          10,
+          0.7,
+          12,
+          0.62,
+          13,
+          0.5,
+          14,
+          0.35,
+          15,
+          0.2,
+          16,
+          0.1,
+          18,
+          0
+        ]
+      },
+      "filter": [
+        "all",
+        ["==", "$type", "LineString"],
+        [
+          "in",
+          "class",
+          "primary",
+          "secondary",
+          "tertiary",
+          "trunk",
+          "motorway"
+        ],
+        ["==", "brunnel", "bridge"]
+      ]
+    },
+    {
+      "id": "Water Lines casing",
+      "type": "line",
+      "source": "water-lines",
+      "minzoom": 11,
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#8e9091",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          2,
+          12,
+          2.8,
+          14,
+          3.5
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.5,
+          12,
+          0.8,
+          14,
+          1
+        ]
+      }
+    },
+    {
+      "id": "Water Lines",
+      "type": "line",
+      "source": "water-lines",
+      "minzoom": 11,
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#00ffff",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          1,
+          12,
+          1.8,
+          14,
+          2.5
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          0.5,
+          12,
+          0.8,
+          14,
+          1
+        ]
+      }
+    },
+    {
+      "id": "schools-symbol",
+      "type": "symbol",
+      "source": "schools",
+      "minzoom": 11,
+      "layout": {
+        "icon-image": "school",
+        "icon-size": 0.06,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true
+      },
+      "paint": {
+        "icon-opacity": 1
+      }
+    },
+    {
+      "id": "churches",
+      "type": "symbol",
+      "source": "churches",
+      "minzoom": 11,
+      "layout": {
+        "icon-image": "church",
+        "icon-size": 0.05,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true
+      },
+      "paint": {
+        "icon-opacity": 1
+      }
+    },
+    {
+      "id": "water-well",
+      "type": "symbol",
+      "source": "well-sources",
+      "minzoom": 11,
+      "layout": {
+        "icon-image": "water-well",
+        "icon-size": 0.06,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true
+      },
+      "paint": {
+        "icon-opacity": 1
+      }
+    },
+    {
+      "id": "spring-source",
+      "type": "symbol",
+      "source": "spring-source",
+      "minzoom": 11,
+      "layout": {
+        "icon-image": "spring",
+        "icon-size": 0.06,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true
+      },
+      "paint": {
+        "icon-opacity": 1
+      }
+    },
+    {
+      "id": "spring",
+      "type": "symbol",
+      "source": "spring",
+      "minzoom": 11,
+      "layout": {
+        "icon-image": "drop",
+        "icon-size": 0.06,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true
+      },
+      "paint": {
+        "icon-opacity": 1
+      }
+    },
+    {
+      "id": "pump-station",
+      "type": "symbol",
+      "source": "pump-station",
+      "minzoom": 11,
+      "layout": {
+        "icon-image": "square",
+        "icon-size": 0.06,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true
+      },
+      "paint": {
+        "icon-opacity": 1
+      }
+    },
+    {
+      "id": "frs-interests",
+      "type": "symbol",
+      "source": "frs-interests",
+      "minzoom": 11,
+      "layout": {
+        "icon-image": "triangle",
+        "icon-size": 0.06,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true
+      },
+      "paint": {
+        "icon-opacity": 1
+      }
+    },
+    {
+      "id": "pec-symbol",
+      "type": "symbol",
+      "source": "pec",
+      "minzoom": 10,
+      "layout": {
+        "icon-image": "pec2",
+        "icon-size": 0.025,
+        "icon-allow-overlap": true
+      },
+      "filter": ["all", ["==", "StateAbbrev", "KY"]]
+    },
+    {
+      "id": "libraries-symbol",
+      "type": "symbol",
+      "source": "libraries",
+      "minzoom": 11,
+      "layout": {
+        "icon-image": "library",
+        "icon-size": 0.06,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true
+      },
+      "paint": {
+        "icon-opacity": 1
+      }
+    },
+    {
+      "id": "airports-symbol",
+      "type": "symbol",
+      "source": "airports",
+      "minzoom": 8.5,
+      "layout": {
+        "icon-image": "airplane",
+        "icon-size": 0.06,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true
+      },
+      "paint": {
+        "icon-opacity": 1
+      }
+    },
+    {
+      "id": "Noise",
+      "type": "raster",
+      "source": "ky-noise",
+      "minzoom": 6,
+      "maxzoom": 17,
+      "layout": {
+        "visibility": "none"
+      },
+      "paint": {
+        "raster-opacity": 0.8,
+        "raster-resampling": "linear"
+      }
+    },
+    {
+      "id": "aoi-boundary-glow-light",
+      "type": "line",
+      "source": "mask",
+      "layout": {
+        "line-join": "round",
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "rgba(29,144,228,0.18)",
+        "line-width": 12
+      }
+    },
+    {
+      "id": "aoi-boundary-glow",
+      "type": "line",
+      "source": "mask",
+      "layout": {
+        "line-join": "round",
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "rgba(29,144,228,0.3)",
+        "line-width": 8
+      }
+    },
+    {
+      "id": "Noise polygons",
+      "type": "fill",
+      "source": "noise-polygons",
+      "source-layer": "noise_raster_polygons",
+      "minzoom": 10,
+      "maxzoom": 17,
+      "paint": {
+        "fill-color": "#F5F5F5",
+        "fill-opacity": 0.01
+      }
+    },
+    {
+      "id": "aoi-boundary",
+      "type": "line",
+      "source": "mask",
+      "paint": {
+        "line-color": "#1D90E4",
+        "line-width": 3
+      }
+    },
+    {
+      "id": "River-labels",
+      "type": "symbol",
+      "source": "maptiler_planet",
+      "source-layer": "waterway",
+      "minzoom": 13,
+      "layout": {
+        "visibility": "visible",
+        "symbol-placement": "line",
+        "symbol-spacing": 350,
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Libre Baskerville Medium Italic"],
+        "text-letter-spacing": 0.1,
+        "text-max-width": 6,
+        "text-offset": [0, 0],
+        "text-rotation-alignment": "map",
+        "text-size": ["interpolate", ["linear"], ["zoom"], 6, 9, 16, 11]
+      },
+      "paint": {
+        "text-color": "rgba(55, 105, 145, 0.98)",
+        "text-halo-color": "#FFFFFF",
+        "text-halo-width": 1.6,
+        "text-halo-blur": 0.9
+      },
+      "filter": ["all", ["==", "$type", "LineString"], ["has", "name"]]
+    },
+    {
+      "id": "Lakeline-labels",
+      "type": "symbol",
+      "source": "maptiler_planet",
+      "source-layer": "water_name",
+      "minzoom": 0,
+      "layout": {
+        "visibility": "visible",
+        "icon-anchor": "center",
+        "symbol-placement": "line",
+        "text-anchor": "center",
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Libre Baskerville Medium Italic"],
+        "text-justify": "center",
+        "text-letter-spacing": 0.1,
+        "text-max-width": 5,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 10, 12, 14, 16]
+      },
+      "paint": {
+        "text-color": "rgba(55, 105, 145, 0.98)",
+        "text-halo-color": "#FFFFFF",
+        "text-halo-width": 1.8,
+        "text-halo-blur": 0.7
+      },
+      "filter": ["==", "$type", "LineString"]
+    },
+    {
+      "id": "Road-labels",
+      "type": "symbol",
+      "source": "maptiler_planet",
+      "source-layer": "transportation_name",
+      "minzoom": 12,
+      "layout": {
+        "visibility": "visible",
+        "symbol-placement": "line",
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Libre Franklin Regular"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          12,
+          10,
+          14,
+          11,
+          16,
+          12
+        ],
+        "text-letter-spacing": 0.02,
+        "symbol-spacing": 400
+      },
+      "paint": {
+        "text-color": "#ffffff",
+        "text-halo-color": "rgba(55, 105, 145, 0.98)",
+        "text-halo-width": 1.8,
+        "text-halo-blur": 0.7
+      }
+    },
+    {
+      "id": "KY Parks Labels",
+      "type": "symbol",
+      "source": "park-labels",
+      "minzoom": 13,
+      "layout": {
+        "text-field": ["get", "name"],
+        "text-font": ["Libre Franklin Italic"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          12,
+          10,
+          14,
+          12,
+          16,
+          14
+        ],
+        "text-anchor": "center",
+        "text-justify": "center",
+        "text-offset": [0, 0],
+        "text-max-width": 10,
+        "text-letter-spacing": 0.03,
+        "visibility": "visible",
+        "text-padding": 4,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false
+      },
+      "paint": {
+        "text-color": "#d9f7df",
+        "text-halo-color": "rgba(0, 0, 20, 0.6)",
+        "text-halo-width": 1.4,
+        "text-halo-blur": 0.6
+      }
+    },
+    {
+      "id": "Cemetery Label",
+      "type": "symbol",
+      "source": "cemetery-point",
+      "minzoom": 13,
+      "layout": {
+        "text-field": ["get", "HName"],
+        "text-font": ["Libre Franklin Italic"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          12,
+          10,
+          14,
+          12,
+          16,
+          14
+        ],
+        "text-anchor": "center",
+        "text-justify": "center",
+        "text-offset": [0, 0],
+        "text-max-width": 10,
+        "text-letter-spacing": 0.03,
+        "visibility": "visible",
+        "text-padding": 4,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false
+      },
+      "paint": {
+        "text-color": "#a0dbb0",
+        "text-halo-color": "rgba(0, 0, 20, 0.6)",
+        "text-halo-width": 1.4,
+        "text-halo-blur": 0.6
+      }
+    },
+    {
+      "id": "Contour labels (ft)",
+      "type": "symbol",
+      "source": "contours",
+      "source-layer": "contour_ft",
+      "layout": {
+        "symbol-placement": "line",
+        "text-field": ["concat", ["to-string", ["get", "height"]], " ft"],
+        "text-font": ["Libre Baskerville Italic"],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 15, 9.5, 20, 12]
+      },
+      "paint": {
+        "text-color": "#fff",
+        "text-halo-color": "#111",
+        "text-halo-width": 0.5,
+        "text-halo-blur": 1
+      },
+      "filter": [
+        "all",
+        ["==", "$type", "LineString"],
+        ["in", "nth_line", 10, 5],
+        [">", "height", 0],
+        ["!=", "glacier", 1]
+      ]
+    },
+    {
+      "id": "Place-labels-village-town-city",
+      "type": "symbol",
+      "source": "maptiler_planet",
+      "source-layer": "place",
+      "minzoom": 6,
+      "layout": {
+        "visibility": "visible",
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Libre Franklin SemiBold"],
+        "text-size": ["step", ["zoom"], 11, 7, 12, 10, 14, 13, 16],
+        "text-transform": "none"
+      },
+      "paint": {
+        "text-color": "#ffffff",
+        "text-halo-color": "rgba(55, 105, 145, 0.98)",
+        "text-halo-width": 1.8,
+        "text-halo-blur": 0.7
+      },
+      "filter": ["in", "class", "village", "town", "city"]
+    },
+    {
+      "id": "Place-labels-state",
+      "type": "symbol",
+      "source": "maptiler_planet",
+      "source-layer": "place",
+      "minzoom": 4,
+      "maxzoom": 10,
+      "layout": {
+        "visibility": "visible",
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Libre Franklin Black"],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 4, 11, 6, 13, 8, 15],
+        "text-letter-spacing": 0.08
+      },
+      "paint": {
+        "text-color": "rgba(55, 105, 145, 0.8)",
+        "text-halo-color": "#FFFFFF",
+        "text-halo-width": 1.8,
+        "text-halo-blur": 0.7
+      },
+      "filter": ["in", "class", "state", "province"]
+    },
+    {
+      "id": "aoi-mask",
+      "type": "fill",
+      "source": "mask",
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "fill-color": "#f5f5f5",
+        "fill-opacity": 0.95
+      }
+    },
+    {
+      "id": "nleb-shadow",
+      "maxzoom": 10,
+      "type": "line",
+      "source": "nleb",
+      "layout": {
+        "visibility": "visible",
+        "line-join": "round",
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "rgba(0, 0, 0, 1)",
+        "line-width": 6,
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          8,
+          0.2,
+          9.5,
+          0.125,
+          10,
+          0.05
+        ],
+        "line-translate": [1.5, 1.5],
+        "line-translate-anchor": "viewport"
+      }
+    },
+    {
+      "id": "nleb-outline",
+      "maxzoom": 10,
+      "type": "line",
+      "source": "nleb",
+      "layout": {
+        "visibility": "visible",
+        "line-join": "round",
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "#7a7a7a",
+        "line-width": 2.25,
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          8,
+          0.8,
+          9,
+          0.67,
+          9.5,
+          0.38,
+          10,
+          0.1
+        ]
+      }
+    },
+    {
+      "id": "nleb",
+      "maxzoom": 10,
+      "type": "fill",
+      "source": "nleb",
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "fill-color": "#FFFFBE",
+        "fill-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          8,
+          0.8,
+          9,
+          0.67,
+          9.5,
+          0.38,
+          10,
+          0.1
+        ]
+      }
+    },
+    {
+      "id": "indianabat-shadow",
+      "maxzoom": 10,
+      "type": "line",
+      "source": "indianaBat",
+      "layout": {
+        "visibility": "visible",
+        "line-join": "round",
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "rgba(0, 0, 0, 1)",
+        "line-width": 6,
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          8,
+          0.2,
+          9.5,
+          0.125,
+          10,
+          0.05
+        ],
+        "line-translate": [1.5, 1.5],
+        "line-translate-anchor": "viewport"
+      }
+    },
+
+    {
+      "id": "indianabat-outline",
+      "maxzoom": 10,
+      "type": "line",
+      "source": "indianaBat",
+      "layout": {
+        "visibility": "visible",
+        "line-join": "round",
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "#7a7a7a",
+        "line-width": 2.25,
+        "line-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          8,
+          0.8,
+          9,
+          0.67,
+          9.5,
+          0.38,
+          10,
+          0.1
+        ]
+      }
+    },
+    {
+      "id": "indianaBat",
+      "maxzoom": 10,
+      "type": "fill",
+      "source": "indianaBat",
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "fill-color": "#66CDAB",
+        "fill-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          8,
+          0.8,
+          9,
+          0.67,
+          9.5,
+          0.38,
+          10,
+          0.1
+        ]
+      }
+    },
+    {
+      "id": "USGS Quad Index Grid",
+      "type": "fill",
+      "source": "usgs-quad-grid",
+      "paint": {
+        "fill-color": "#ffffff",
+        "fill-opacity": 0.01
+      }
+    }
+  ],
+  "metadata": {
+    "maptiler:copyright": "This style was generated on MapTiler Cloud. Usage outside of MapTiler Cloud requires valid MapTiler Data Package: https://www.maptiler.com/data/package/ -- please contact us."
+  },
+  "glyphs": "https://jfltx.github.io/fonts/{fontstack}/{range}.pbf",
+  "sprite": "https://jfltx.github.io/sprites/pec-env/sprite?v=2",
+  "bearing": 0,
+  "pitch": 0,
+  "center": [0, 0],
+  "zoom": 1
+}

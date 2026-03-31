@@ -1,0 +1,374 @@
+@import "tailwindcss";
+
+/* Libre Franklin Font Styles Hosted on Github for Palmer Use */
+
+/* 100 Thin */
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-Thin.woff2")
+    format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-ThinItalic.woff2")
+    format("woff2");
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* 200 ExtraLight */
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-ExtraLight.woff2")
+    format("woff2");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-ExtraLightItalic.woff2")
+    format("woff2");
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* 300 Light */
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-Light.woff2")
+    format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-LightItalic.woff2")
+    format("woff2");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* 400 Regular */
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-Regular.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-Italic.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* 500 Medium */
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-Medium.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-MediumItalic.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* 600 SemiBold */
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-SemiBold.woff2")
+    format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-SemiBoldItalic.woff2")
+    format("woff2");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* 700 Bold */
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-Bold.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-BoldItalic.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* 800 ExtraBold */
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-ExtraBold.woff2")
+    format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-ExtraBoldItalic.woff2")
+    format("woff2");
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* 900 Black */
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-Black.woff2")
+    format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("https://jfltx.github.io/fonts/Libre%20Franklin/LibreFranklin-BlackItalic.woff2")
+    format("woff2");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --font: "Libre Franklin", system-ui, sans-serif;
+  --h1-weight: 900;
+  --dark: #111;
+}
+
+h1 {
+  position: absolute;
+  z-index: 650;
+  top: 10px;
+  left: 15px;
+  padding: 0px 4px;
+  margin: 0;
+  font-family: var(--font);
+  font-weight: var(--h1-weight);
+  font-size: 3em;
+  letter-spacing: 0.05em;
+  color: whitesmoke;
+  text-shadow:
+    0 0 2px var(--dark),
+    0 0 5px var(--dark),
+    0 0 7px var(--dark),
+    0 0 10px var(--dark);
+}
+
+.maplibregl-popup {
+  font-family: var(--font);
+}
+
+.maplibregl-popup-content {
+  padding: 0;
+  border-radius: 14px;
+  overflow: visible;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.maplibregl-popup-close-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  font-size: 20px;
+  line-height: 28px;
+  border-radius: 6px;
+  color: red;
+  background: rgba(255, 176, 176, 0.5);
+  cursor: pointer;
+  z-index: 20; /* above everything */
+}
+
+.maplibregl-popup-close-button:hover {
+  background: rgba(255, 65, 65, 0.3);
+}
+
+.popup-wrap {
+  min-width: 300px;
+  max-width: 420px;
+  background: #ffffff;
+  color: #1b1b1b;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.popup-top {
+  padding: 12px 14px 10px 14px;
+  border-bottom: 1px solid #d9d9d9;
+  background: #f7f8fa;
+  /* padding-right: 30px; */
+}
+
+.popup-title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.popup-subtitle {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.popup-layer-section {
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.popup-layer-section:last-child {
+  border-bottom: none;
+}
+
+.popup-layer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #eef3f8;
+}
+
+.popup-layer-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #18344d;
+  word-break: break-word;
+}
+
+.popup-layer-count {
+  font-size: 0.75rem;
+  color: #5f6f7e;
+  white-space: nowrap;
+}
+
+.popup-layer-body {
+  padding: 8px 10px 12px 10px;
+}
+
+.popup-feature {
+  border: 1px solid #dbe3ea;
+  border-radius: 10px;
+  background: #fff;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.popup-feature:last-child {
+  margin-bottom: 0;
+}
+
+.popup-feature-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background: #fafbfd;
+  font-weight: 600;
+}
+
+.popup-feature-summary::-webkit-details-marker {
+  display: none;
+}
+
+.popup-feature-title {
+  font-size: 0.85rem;
+  color: #222;
+}
+
+.popup-feature-geom {
+  font-size: 0.72rem;
+  color: #6b7785;
+  background: #e8edf2;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.popup-feature-body {
+  padding: 10px 12px 12px 12px;
+}
+
+.popup-attrs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.popup-attr-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 6px 0;
+  border-bottom: 1px dashed #ececec;
+}
+
+.popup-attr-row:last-child {
+  border-bottom: none;
+}
+
+.popup-attr-key {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #3f4d5a;
+  word-break: break-word;
+}
+
+.popup-attr-value {
+  font-size: 0.8rem;
+  color: #1f1f1f;
+  word-break: break-word;
+}
+
+.popup-empty {
+  padding: 14px;
+  font-size: 0.85rem;
+  color: #666;
+}
