@@ -1,0 +1,181 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 1,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-84.215480640398965, 38.003463759681054]
+      },
+      "properties": {
+        "OBJECTID": 1,
+        "Location": "Winchester",
+        "StateAbbrev": "KY",
+        "Type": "Headquarters",
+        "Lat": 38.003463760000002,
+        "Long": -84.215480639999996
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 2,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-84.554258160231782, 38.021395529690963]
+      },
+      "properties": {
+        "OBJECTID": 2,
+        "Location": "Lexington",
+        "StateAbbrev": "KY",
+        "Type": "Branch",
+        "Lat": 38.021395529999999,
+        "Long": -84.554258160000003
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 3,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-85.603724409740167, 38.200253949667854]
+      },
+      "properties": {
+        "OBJECTID": 3,
+        "Location": "Louisville",
+        "StateAbbrev": "KY",
+        "Type": "Branch",
+        "Lat": 38.200253949999997,
+        "Long": -85.603724409999998
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 4,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-84.562353209837028, 39.052186070317269]
+      },
+      "properties": {
+        "OBJECTID": 4,
+        "Location": "Fort Mitchell",
+        "StateAbbrev": "KY",
+        "Type": "Branch",
+        "Lat": 39.052186069999998,
+        "Long": -84.562353209999998
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 5,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-84.333831700093143, 39.275665819718789]
+      },
+      "properties": {
+        "OBJECTID": 5,
+        "Location": "Cincinnati",
+        "StateAbbrev": "OH",
+        "Type": "Branch",
+        "Lat": 39.27566582,
+        "Long": -84.333831700000005
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 6,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-81.821668629572713, 41.138670430282382]
+      },
+      "properties": {
+        "OBJECTID": 6,
+        "Location": "Medina",
+        "StateAbbrev": "OH",
+        "Type": "Branch",
+        "Lat": 41.138670429999998,
+        "Long": -81.821668630000005
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 7,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-82.934966830245841, 39.996918400043178]
+      },
+      "properties": {
+        "OBJECTID": 7,
+        "Location": "Columbus",
+        "StateAbbrev": "OH",
+        "Type": "Branch",
+        "Lat": 39.996918399999998,
+        "Long": -82.934966829999993
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 8,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-86.763348840108122, 36.114545329810937]
+      },
+      "properties": {
+        "OBJECTID": 8,
+        "Location": "Nashville",
+        "StateAbbrev": "TN",
+        "Type": "Branch",
+        "Lat": 36.114545329999999,
+        "Long": -86.763348840000006
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 9,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-81.327397119634, 28.56027904989541]
+      },
+      "properties": {
+        "OBJECTID": 9,
+        "Location": "Orlando",
+        "StateAbbrev": "FL",
+        "Type": "Branch",
+        "Lat": 28.560279049999998,
+        "Long": -81.327397120000001
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 10,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-81.539801580268019, 30.12956202037244]
+      },
+      "properties": {
+        "OBJECTID": 10,
+        "Location": "Jacksonville",
+        "StateAbbrev": "FL",
+        "Type": "Branch",
+        "Lat": 30.129562020000002,
+        "Long": -81.539801580000002
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 11,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-81.939796270170888, 38.449341310275763]
+      },
+      "properties": {
+        "OBJECTID": 11,
+        "Location": "Hurricane",
+        "StateAbbrev": "WV",
+        "Type": "Branch",
+        "Lat": 38.449341310000001,
+        "Long": -81.939796270000002
+      }
+    }
+  ]
+}
