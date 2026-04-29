@@ -49,6 +49,7 @@ function setKmzStatus(message, isError = false) {
   statusEl.textContent = message;
   statusEl.classList.toggle("error", isError);
 }
+
 async function parseKmzToGeoJSON(file) {
   const arrayBuffer = await file.arrayBuffer();
   const zip = await JSZip.loadAsync(arrayBuffer);
@@ -60,7 +61,11 @@ async function parseKmzToGeoJSON(file) {
     throw new Error("KMZ does not contain a KML file.");
   }
 
-  let kmlText = await kmlEntry.async("text");
+  const kmlText = await kmlEntry.async("text");
+  return parseKmlTextToGeoJSON(kmlText);
+}
+
+function parseKmlTextToGeoJSON(kmlText) {
   kmlText = kmlText.replace(/^\uFEFF/, "");
 
   if (
@@ -87,11 +92,37 @@ async function parseKmzToGeoJSON(file) {
 
   const geojson = toGeoJSON.kml(kmlDoc);
 
-  if (!geojson || !geojson.features || !geojson.features.length) {
-    throw new Error("No valid features found in the KMZ file.");
+  if (!geojson?.features?.length) {
+    throw new Error("No valid features found in the KML file.");
   }
 
   return geojson;
+}
+
+async function parseUploadToGeoJSON(file) {
+  const fileName = file.name.toLowerCase();
+
+  if (fileName.endsWith(".geojson") || fileName.endsWith(".json")) {
+    const text = await file.text();
+    const geojson = JSON.parse(text);
+
+    if (!geojson?.features?.length) {
+      throw new Error("No valid features found in the GeoJSON file.");
+    }
+
+    return geojson;
+  }
+
+  if (fileName.endsWith(".kml")) {
+    const kmlText = await file.text();
+    return parseKmlTextToGeoJSON(kmlText);
+  }
+
+  if (fileName.endsWith(".kmz")) {
+    return parseKmzToGeoJSON(file);
+  }
+
+  throw new Error("Please upload a .kmz, .kml, .geojson, or .json file.");
 }
 
 function ensureKmzLayerSetup() {
@@ -210,23 +241,17 @@ async function handleKmzUpload(event) {
   const file = event.target?.files?.[0];
   if (!file) return;
 
-  if (!file.name.toLowerCase().endsWith(".kmz")) {
-    setKmzStatus("Please upload a .kmz file.", true);
-    event.target.value = "";
-    return;
-  }
-
   setKmzStatus(`Loading ${file.name}...`);
 
   try {
-    const geojson = await parseKmzToGeoJSON(file);
+    const geojson = await parseUploadToGeoJSON(file);
     const combined = appendKmzData(geojson, file.name);
     await saveKmzToCache(combined);
 
     event.target.value = "";
   } catch (error) {
     console.error(error);
-    setKmzStatus(error?.message || "Unable to parse KMZ.", true);
+    setKmzStatus(error?.message || "Unable to parse uploaded file.", true);
     event.target.value = "";
   }
 }
