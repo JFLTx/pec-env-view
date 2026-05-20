@@ -4,31 +4,156 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EnviroView</title>
-    <script type="module" crossorigin src="./assets/index-CDmwHRRN.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BGksOcsG.css">
+    <title>PEC EnviroView</title>
+    <script type="module" crossorigin src="./assets/index-ssK9lKhn.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-C8cYL2id.css">
   </head>
   <body>
-    <div id="app"></div>
 
-    <h1>PEC EnviroView</h1>
-
-    <!-- loading screen  -->
     <div id="loading-screen">
       <div class="loading-text gradient-text">
-        Loading<span class="dot dot1">.</span><span class="dot dot2">.</span
-        ><span class="dot dot3">.</span>
+        Loading<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
       </div>
     </div>
 
-    <div class="kmz-upload-control">
-      <label for="kmz-upload">Upload File</label>
-      <input id="kmz-upload" type="file" accept=".kmz,.kml,.geojson,.json" />
-      <div id="kmz-status" class="kmz-status">Choose a file (.kmz, .kml, .geojson, .json) to load.</div>
-      <button id="kmz-clear" type="button">Clear Uploads</button>
+    <div id="shell">
+
+      <header id="app-header">
+        <div class="header-left">
+          <button id="sidebar-toggle" type="button" title="Toggle panel" aria-label="Toggle panel">
+            <svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden="true">
+              <rect width="18" height="2" rx="1" fill="currentColor"/>
+              <rect y="6" width="18" height="2" rx="1" fill="currentColor"/>
+              <rect y="12" width="18" height="2" rx="1" fill="currentColor"/>
+            </svg>
+          </button>
+          <span class="app-title">PEC EnviroView</span>
+        </div>
+      </header>
+
+      <div id="content">
+
+        <!-- Starts closed; JS opens it on desktop -->
+        <aside id="sidebar" class="closed">
+
+          <details class="sb-section" open>
+            <summary class="sb-section-header">
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                <rect width="14" height="3" rx="1" fill="currentColor"/>
+                <rect y="4.5" width="14" height="3" rx="1" fill="currentColor" opacity="0.65"/>
+                <rect y="9" width="14" height="3" rx="1" fill="currentColor" opacity="0.35"/>
+              </svg>
+              Layers
+            </summary>
+            <div class="sb-section-body">
+              <div id="sidebar-layer-list" class="layer-list"></div>
+            </div>
+          </details>
+
+          <details class="sb-section">
+            <summary class="sb-section-header">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M7 1v9M3.5 6l3.5 4 3.5-4M1.5 13h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Upload
+            </summary>
+            <div class="sb-section-body sb-upload">
+              <label class="sb-file-label" for="kmz-upload">Add File</label>
+              <input id="kmz-upload" type="file" accept=".kmz,.kml,.geojson,.json" />
+              <div id="kmz-status" class="kmz-status">Choose a file (.kmz, .kml, .geojson, or .json) to load.</div>
+              <button id="kmz-clear" type="button" class="btn-danger">Clear Uploads</button>
+            </div>
+          </details>
+
+          <details class="sb-section">
+            <summary class="sb-section-header">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M1 7h12M1 1.5h3.5M1 12.5h3.5M9.5 1.5H13M9.5 12.5H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              Measure
+            </summary>
+            <div class="sb-section-body">
+              <div class="measure-buttons">
+                <button id="measure-distance" type="button" class="btn-measure">📏 Distance</button>
+                <button id="measure-area" type="button" class="btn-measure">⬠ Area</button>
+                <button id="measure-clear" type="button" class="btn-measure-clear">✕ Clear</button>
+              </div>
+              <p id="measure-hint" class="measure-hint">Select a tool, then click the map.</p>
+            </div>
+          </details>
+
+          <details class="sb-section">
+            <summary class="sb-section-header">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="7" cy="6" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M7 10.5 L7 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Collect
+            </summary>
+            <div class="sb-section-body">
+              <button id="collect-toggle" type="button" class="btn-collect-toggle">
+                📍 Start Collecting
+              </button>
+              <p id="collect-count-label" class="collect-count-label">No points collected.</p>
+              <div class="collect-sb-actions">
+                <button id="collect-export" type="button" class="btn-collect-action" disabled>⬇ Export GeoJSON</button>
+                <button id="collect-clear-all" type="button" class="btn-collect-danger" disabled>Clear All</button>
+              </div>
+            </div>
+          </details>
+
+        </aside>
+
+        <div id="sidebar-overlay"></div>
+
+        <div id="map-wrapper">
+          <div id="map"></div>
+          <!-- Place palmer-logo.png in project/public/ to display the logo -->
+          <div id="map-logo">
+            <img src="./palmer-logo.png" alt="Palmer Engineering" onerror="this.parentElement.style.display='none'" />
+          </div>
+        </div>
+
+      </div>
     </div>
 
-    <div id="map" class="h-screen w-screen"></div>
+    <!-- Collection bottom sheet -->
+    <div id="collect-sheet" class="collect-sheet closed">
+      <div class="collect-sheet-handle"></div>
+      <div class="collect-sheet-header">
+        <div class="collect-sheet-title">Collection Point</div>
+        <div id="collect-coords" class="collect-sheet-coords"></div>
+      </div>
+      <form id="collect-form" class="collect-form" autocomplete="off">
+        <label class="cf-field">
+          <span class="cf-label">Name</span>
+          <input id="cf-name" type="text" placeholder="Site name" autocomplete="off" />
+        </label>
+        <label class="cf-field">
+          <span class="cf-label">Field Site</span>
+          <input id="cf-site" type="text" placeholder="Field site designation" autocomplete="off" />
+        </label>
+        <label class="cf-field">
+          <span class="cf-label">KHC</span>
+          <input id="cf-khc" type="text" placeholder="KHC number" autocomplete="off" />
+        </label>
+        <label class="cf-field">
+          <span class="cf-label">Address</span>
+          <input id="cf-address" type="text" placeholder="Street address or road" autocomplete="off" />
+        </label>
+        <label class="cf-field">
+          <span class="cf-label">Description</span>
+          <textarea id="cf-desc" rows="3" placeholder="Notes, observations, site conditions..."></textarea>
+        </label>
+        <div class="cf-actions">
+          <button id="collect-delete" type="button" class="btn-cf-delete hidden">Delete</button>
+          <div class="cf-actions-right">
+            <button id="collect-cancel" type="button" class="btn-cf-cancel">Cancel</button>
+            <button type="submit" class="btn-cf-save">Save Point</button>
+          </div>
+        </div>
+      </form>
+    </div>
 
   </body>
 </html>

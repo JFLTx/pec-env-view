@@ -29,6 +29,9 @@ const KMZ_DB_NAME = "map-upload-cache";
 const KMZ_STORE_NAME = "uploads";
 const KMZ_RECORD_KEY = "uploaded-kmz";
 
+const COLLECT_STORE_NAME = "collected-points";
+const COLLECT_RECORD_KEY = "collection-features";
+
 const EMPTY_FEATURE_COLLECTION = {
   type: "FeatureCollection",
   features: [],
@@ -42,6 +45,13 @@ let uploadedKmzData = {
 let measureMode = null; // "distance" | "area" | null
 let measureCoords = [];
 let measurePopup = null;
+
+let collectMode = false;
+let collectedFeatures = []; // array of GeoJSON Feature objects
+let pendingMarker = null;   // unsaved pin while sheet is open
+let editingFeatureId = null;
+let suppressMapClick = false;
+const savedMarkers = new Map(); // featureId → maplibregl.Marker
 
 function setKmzStatus(message, isError = false) {
   const statusEl = document.getElementById("kmz-status");
@@ -362,12 +372,15 @@ function updateMeasureSource() {
 
 function openKmzDb() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(KMZ_DB_NAME, 1);
+    const request = indexedDB.open(KMZ_DB_NAME, 2); // v2 adds collected-points store
 
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(KMZ_STORE_NAME)) {
         db.createObjectStore(KMZ_STORE_NAME);
+      }
+      if (!db.objectStoreNames.contains(COLLECT_STORE_NAME)) {
+        db.createObjectStore(COLLECT_STORE_NAME);
       }
     };
 
@@ -417,6 +430,36 @@ async function clearKmzCache() {
     const store = tx.objectStore(KMZ_STORE_NAME);
     store.delete(KMZ_RECORD_KEY);
 
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function saveCollectCache(features) {
+  const db = await openKmzDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(COLLECT_STORE_NAME, "readwrite");
+    tx.objectStore(COLLECT_STORE_NAME).put(features, COLLECT_RECORD_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function loadCollectCache() {
+  const db = await openKmzDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(COLLECT_STORE_NAME, "readonly");
+    const req = tx.objectStore(COLLECT_STORE_NAME).get(COLLECT_RECORD_KEY);
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function clearCollectCache() {
+  const db = await openKmzDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(COLLECT_STORE_NAME, "readwrite");
+    tx.objectStore(COLLECT_STORE_NAME).delete(COLLECT_RECORD_KEY);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
@@ -620,165 +663,133 @@ const layerGroups = [
   },
 ];
 
-class layerControl {
-  constructor(layerGroups = []) {
-    this.layerGroups = layerGroups;
+function initSidebarToggle() {
+  const sidebar = document.getElementById("sidebar");
+  const toggle = document.getElementById("sidebar-toggle");
+  const overlay = document.getElementById("sidebar-overlay");
+
+  const isMobile = () => window.matchMedia("(max-width: 768px)").matches;
+
+  // Open sidebar by default on desktop; HTML starts with .closed
+  if (!isMobile()) {
+    sidebar.classList.remove("closed");
   }
 
-  onAdd(map) {
-    this._map = map;
+  toggle?.addEventListener("click", () => {
+    sidebar.classList.toggle("closed");
+    const isNowOpen = !sidebar.classList.contains("closed");
+    if (isMobile() && overlay) {
+      overlay.classList.toggle("active", isNowOpen);
+    }
+  });
 
-    const container = document.createElement("div");
-    container.className = "maplibregl-ctrl maplibregl-ctrl-group layer-control";
+  overlay?.addEventListener("click", () => {
+    sidebar.classList.add("closed");
+    overlay.classList.remove("active");
+  });
 
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "maplibregl-ctrl-icon layer-control-button";
-    button.setAttribute("aria-label", "Layer list");
-    button.setAttribute("title", "Layer list");
-    button.innerHTML = "☰";
+  // Resize the map canvas after the sidebar slide animation completes
+  sidebar?.addEventListener("transitionend", () => {
+    map.resize();
+  });
 
-    const panel = document.createElement("div");
-    panel.className = "layer-panel hidden";
-
-    const title = document.createElement("div");
-    title.className = "layer-panel-title";
-    title.textContent = "Layers";
-
-    const layerList = document.createElement("div");
-    layerList.className = "layer-list";
-
-    panel.appendChild(title);
-    panel.appendChild(layerList);
-
-    const firstExistingLayer = (groupLayers) => {
-      return groupLayers.find((id) => map.getLayer(id));
-    };
-
-    const isGroupVisible = (groupLayers) => {
-      const firstLayer = firstExistingLayer(groupLayers);
-      if (!firstLayer) return false;
-
-      return map.getLayoutProperty(firstLayer, "visibility") !== "none";
-    };
-
-    const setGroupVisibility = (groupLayers, isVisible) => {
-      groupLayers.forEach((id) => {
-        if (map.getLayer(id)) {
-          map.setLayoutProperty(
-            id,
-            "visibility",
-            isVisible ? "visible" : "none",
-          );
-        }
-      });
-    };
-
-    this.layerGroups.forEach((group) => {
-      const row = document.createElement("label");
-      row.className = "layer-row";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = isGroupVisible(group.layers);
-
-      checkbox.addEventListener("change", () => {
-        setGroupVisibility(group.layers, checkbox.checked);
-      });
-
-      const text = document.createElement("span");
-      text.className = "layer-row-label";
-      text.textContent = group.label;
-
-      row.appendChild(checkbox);
-      row.appendChild(text);
-      layerList.appendChild(row);
-
-      group.checkbox = checkbox;
-    });
-
-    const syncCheckboxes = () => {
-      this.layerGroups.forEach((group) => {
-        if (group.checkbox) {
-          group.checkbox.checked = isGroupVisible(group.layers);
-        }
-      });
-    };
-
-    button.addEventListener("click", (e) => {
-      e.stopPropagation();
-      syncCheckboxes();
-      panel.classList.toggle("hidden");
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!container.contains(e.target)) {
-        panel.classList.add("hidden");
-      }
-    });
-
-    map.on("load", syncCheckboxes);
-    map.on("styledata", syncCheckboxes);
-
-    container.appendChild(button);
-    container.appendChild(panel);
-
-    this._container = container;
-    return container;
-  }
-
-  onRemove() {
-    this._container?.remove();
-    this._map = undefined;
-  }
+  // Close sidebar overlay and re-sync when crossing the breakpoint
+  let wasMobile = isMobile();
+  window.addEventListener("resize", () => {
+    const nowMobile = isMobile();
+    if (wasMobile !== nowMobile) {
+      sidebar.classList.add("closed");
+      overlay?.classList.remove("active");
+      if (!nowMobile) sidebar.classList.remove("closed");
+      wasMobile = nowMobile;
+    }
+    map.resize();
+  });
 }
 
-class MeasureControl {
-  onAdd() {
-    const container = document.createElement("div");
-    container.className = "maplibregl-ctrl maplibregl-ctrl-group";
+function initSidebarLayers(layerGroups) {
+  const listEl = document.getElementById("sidebar-layer-list");
+  if (!listEl) return;
 
-    const distanceBtn = document.createElement("button");
-    distanceBtn.type = "button";
-    distanceBtn.textContent = "📏";
-    distanceBtn.title = "Measure distance";
-
-    const areaBtn = document.createElement("button");
-    areaBtn.type = "button";
-    areaBtn.textContent = "⬠";
-    areaBtn.title = "Measure area";
-
-    const clearBtn = document.createElement("button");
-    clearBtn.type = "button";
-    clearBtn.textContent = "✕";
-    clearBtn.title = "Clear measurement";
-
-    distanceBtn.addEventListener("click", () => {
-      measureMode = "distance";
-      clearMeasurement();
+  const firstExisting = (ids) => ids.find((id) => map.getLayer(id));
+  const isVisible = (ids) => {
+    const first = firstExisting(ids);
+    return first ? map.getLayoutProperty(first, "visibility") !== "none" : false;
+  };
+  const setVisible = (ids, visible) => {
+    ids.forEach((id) => {
+      if (map.getLayer(id)) {
+        map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
+      }
     });
+  };
 
-    areaBtn.addEventListener("click", () => {
-      measureMode = "area";
-      clearMeasurement();
+  layerGroups.forEach((group) => {
+    const row = document.createElement("label");
+    row.className = "layer-row";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = isVisible(group.layers);
+    checkbox.addEventListener("change", () => setVisible(group.layers, checkbox.checked));
+
+    const text = document.createElement("span");
+    text.className = "layer-row-label";
+    text.textContent = group.label;
+
+    row.appendChild(checkbox);
+    row.appendChild(text);
+    listEl.appendChild(row);
+
+    group.checkbox = checkbox;
+  });
+
+  const syncCheckboxes = () => {
+    layerGroups.forEach((group) => {
+      if (group.checkbox) group.checkbox.checked = isVisible(group.layers);
     });
+  };
 
-    clearBtn.addEventListener("click", () => {
-      measureMode = null;
-      clearMeasurement();
-    });
+  map.on("styledata", syncCheckboxes);
+}
 
-    container.appendChild(distanceBtn);
-    container.appendChild(areaBtn);
-    container.appendChild(clearBtn);
+function initSidebarMeasure() {
+  const distBtn = document.getElementById("measure-distance");
+  const areaBtn = document.getElementById("measure-area");
+  const clearBtn = document.getElementById("measure-clear");
+  const hint = document.getElementById("measure-hint");
 
-    this._container = container;
-    return container;
-  }
+  const updateState = () => {
+    distBtn?.classList.toggle("active", measureMode === "distance");
+    areaBtn?.classList.toggle("active", measureMode === "area");
+    if (hint) {
+      if (measureMode === "distance") {
+        hint.textContent = "Click the map to add points. Click Clear to reset.";
+      } else if (measureMode === "area") {
+        hint.textContent = "Click the map to add vertices. Click Clear to reset.";
+      } else {
+        hint.textContent = "Select a tool, then click the map.";
+      }
+    }
+  };
 
-  onRemove() {
-    this._container?.remove();
-  }
+  distBtn?.addEventListener("click", () => {
+    measureMode = "distance";
+    clearMeasurement();
+    updateState();
+  });
+
+  areaBtn?.addEventListener("click", () => {
+    measureMode = "area";
+    clearMeasurement();
+    updateState();
+  });
+
+  clearBtn?.addEventListener("click", () => {
+    measureMode = null;
+    clearMeasurement();
+    updateState();
+  });
 }
 
 // popup functionality for each layer
@@ -896,6 +907,213 @@ function buildPopup(features) {
   `;
 } // END buildPopup
 
+// ── Collection feature ────────────────────────────────────────────────────────
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+function createPinElement(pending = false) {
+  const el = document.createElement("div");
+  el.className = "collect-pin" + (pending ? " pending" : "");
+  const headFill = pending ? "#7abbe0" : "#1B6CA8";
+  const needleFill = pending ? "#5590c0" : "#14507F";
+  el.innerHTML = `
+    <svg viewBox="0 0 24 40" width="24" height="40" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="11" r="10" fill="${headFill}" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+      <path d="M11.2 21 L10.5 36 L12 40 L13.5 36 L12.8 21 Z" fill="${needleFill}"/>
+      <ellipse cx="9" cy="8" rx="3.2" ry="2" fill="rgba(255,255,255,0.32)" transform="rotate(-25 9 8)"/>
+    </svg>`;
+  return el;
+}
+
+function updateCollectSidebar() {
+  const count = collectedFeatures.length;
+  const label = document.getElementById("collect-count-label");
+  const exportBtn = document.getElementById("collect-export");
+  const clearAllBtn = document.getElementById("collect-clear-all");
+  if (label) label.textContent = count === 0 ? "No points collected." : `${count} point${count === 1 ? "" : "s"} collected.`;
+  if (exportBtn) exportBtn.disabled = count === 0;
+  if (clearAllBtn) clearAllBtn.disabled = count === 0;
+}
+
+function openCollectSheet(lngLat, existingFeature = null) {
+  editingFeatureId = existingFeature?.properties?.id ?? null;
+
+  document.getElementById("cf-name").value = existingFeature?.properties?.name ?? "";
+  document.getElementById("cf-site").value = existingFeature?.properties?.fieldSite ?? "";
+  document.getElementById("cf-khc").value = existingFeature?.properties?.khc ?? "";
+  document.getElementById("cf-address").value = existingFeature?.properties?.address ?? "";
+  document.getElementById("cf-desc").value = existingFeature?.properties?.description ?? "";
+
+  const deleteBtn = document.getElementById("collect-delete");
+  deleteBtn?.classList.toggle("hidden", !existingFeature);
+
+  const sheet = document.getElementById("collect-sheet");
+  sheet.dataset.lat = lngLat.lat;
+  sheet.dataset.lng = lngLat.lng;
+
+  document.getElementById("collect-coords").textContent =
+    `${lngLat.lat.toFixed(6)}, ${lngLat.lng.toFixed(6)}`;
+
+  sheet.classList.remove("closed");
+  setTimeout(() => document.getElementById("cf-name")?.focus(), 320);
+}
+
+function closeCollectSheet() {
+  document.getElementById("collect-sheet").classList.add("closed");
+  editingFeatureId = null;
+  if (pendingMarker) {
+    pendingMarker.remove();
+    pendingMarker = null;
+  }
+}
+
+function addSavedMarker(feature) {
+  const id = feature.properties.id;
+  const [lng, lat] = feature.geometry.coordinates;
+  const el = createPinElement(false);
+
+  el.addEventListener("click", (e) => {
+    e.stopPropagation();
+    suppressMapClick = true;
+    setTimeout(() => { suppressMapClick = false; }, 80);
+    if (measureMode) return;
+    openCollectSheet(
+      { lat, lng },
+      collectedFeatures.find((f) => f.properties.id === id),
+    );
+  });
+
+  const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
+    .setLngLat([lng, lat])
+    .addTo(map);
+
+  savedMarkers.set(id, marker);
+}
+
+function handleCollectSave(e) {
+  e.preventDefault();
+  const sheet = document.getElementById("collect-sheet");
+  const lat = parseFloat(sheet.dataset.lat);
+  const lng = parseFloat(sheet.dataset.lng);
+
+  const props = {
+    name:        document.getElementById("cf-name").value.trim(),
+    fieldSite:   document.getElementById("cf-site").value.trim(),
+    khc:         document.getElementById("cf-khc").value.trim(),
+    address:     document.getElementById("cf-address").value.trim(),
+    description: document.getElementById("cf-desc").value.trim(),
+  };
+
+  if (editingFeatureId) {
+    const idx = collectedFeatures.findIndex((f) => f.properties.id === editingFeatureId);
+    if (idx !== -1) {
+      collectedFeatures[idx].properties = { ...collectedFeatures[idx].properties, ...props };
+    }
+  } else {
+    const id = generateId();
+    const feature = {
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [lng, lat] },
+      properties: { id, collectedAt: new Date().toISOString(), ...props },
+    };
+    collectedFeatures.push(feature);
+
+    // Promote the pending marker to a saved marker
+    if (pendingMarker) {
+      const el = pendingMarker.getElement();
+      el.innerHTML = createPinElement(false).innerHTML;
+      el.classList.remove("pending");
+      el.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        suppressMapClick = true;
+        setTimeout(() => { suppressMapClick = false; }, 80);
+        if (measureMode) return;
+        openCollectSheet({ lat, lng }, collectedFeatures.find((f) => f.properties.id === id));
+      });
+      savedMarkers.set(id, pendingMarker);
+      pendingMarker = null; // don't remove it in closeCollectSheet
+    } else {
+      addSavedMarker(feature);
+    }
+  }
+
+  saveCollectCache(collectedFeatures).catch(console.error);
+  updateCollectSidebar();
+
+  // Close sheet without removing the (now saved) marker
+  document.getElementById("collect-sheet").classList.add("closed");
+  editingFeatureId = null;
+  pendingMarker = null;
+}
+
+function handleCollectDelete() {
+  if (!editingFeatureId) return;
+  const id = editingFeatureId;
+  collectedFeatures = collectedFeatures.filter((f) => f.properties.id !== id);
+
+  const marker = savedMarkers.get(id);
+  if (marker) { marker.remove(); savedMarkers.delete(id); }
+
+  saveCollectCache(collectedFeatures).catch(console.error);
+  updateCollectSidebar();
+  closeCollectSheet();
+}
+
+function exportCollectGeoJSON() {
+  const fc = { type: "FeatureCollection", features: collectedFeatures };
+  const blob = new Blob([JSON.stringify(fc, null, 2)], { type: "application/geo+json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `pec-collection-${new Date().toISOString().slice(0, 10)}.geojson`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function initCollect() {
+  // Restore persisted points
+  loadCollectCache().then((features) => {
+    collectedFeatures = features;
+    collectedFeatures.forEach(addSavedMarker);
+    updateCollectSidebar();
+  }).catch(console.error);
+
+  // Sidebar toggle button
+  const toggleBtn = document.getElementById("collect-toggle");
+  toggleBtn?.addEventListener("click", () => {
+    collectMode = !collectMode;
+    toggleBtn.classList.toggle("active", collectMode);
+    toggleBtn.textContent = collectMode ? "⏹ Stop Collecting" : "📍 Start Collecting";
+    map.getCanvas().style.cursor = collectMode ? "crosshair" : "";
+    if (!collectMode && pendingMarker) {
+      pendingMarker.remove();
+      pendingMarker = null;
+      document.getElementById("collect-sheet").classList.add("closed");
+    }
+  });
+
+  // Export button
+  document.getElementById("collect-export")?.addEventListener("click", exportCollectGeoJSON);
+
+  // Clear all
+  document.getElementById("collect-clear-all")?.addEventListener("click", () => {
+    if (!confirm(`Clear all ${collectedFeatures.length} collected point(s)?`)) return;
+    savedMarkers.forEach((m) => m.remove());
+    savedMarkers.clear();
+    collectedFeatures = [];
+    clearCollectCache().catch(console.error);
+    updateCollectSidebar();
+    closeCollectSheet();
+  });
+
+  // Bottom sheet form
+  document.getElementById("collect-form")?.addEventListener("submit", handleCollectSave);
+  document.getElementById("collect-cancel")?.addEventListener("click", closeCollectSheet);
+  document.getElementById("collect-delete")?.addEventListener("click", handleCollectDelete);
+}
+
 map.on("load", async () => {
   // Add sky style to the map, giving an atmospheric effect
   map.setSky({
@@ -932,6 +1150,8 @@ map.on("load", async () => {
 
   attachKmzUploadListener();
   ensureMeasureLayers();
+  initSidebarLayers(layerGroups);
+  initCollect();
 
   // did sprites load?
   // console.log("all images:", map.listImages());
@@ -1000,6 +1220,18 @@ const popupLayerLookup = Object.fromEntries(
 );
 
 map.on("click", (e) => {
+  if (suppressMapClick) return;
+
+  if (collectMode) {
+    if (pendingMarker) { pendingMarker.remove(); }
+    const el = createPinElement(true);
+    pendingMarker = new maplibregl.Marker({ element: el, anchor: "bottom" })
+      .setLngLat(e.lngLat)
+      .addTo(map);
+    openCollectSheet(e.lngLat);
+    return;
+  }
+
   if (measureMode) {
     measureCoords.push([e.lngLat.lng, e.lngLat.lat]);
     updateMeasureSource();
@@ -1042,7 +1274,7 @@ map.on("click", (e) => {
 
 // cursor for interactivity on desktop
 map.on("mousemove", (e) => {
-  if (measureMode) {
+  if (collectMode || measureMode) {
     map.getCanvas().style.cursor = "crosshair";
     return;
   }
@@ -1093,9 +1325,8 @@ map.addControl(
   "top-right",
 );
 
-map.addControl(new layerControl(layerGroups), "top-right");
-
-map.addControl(new MeasureControl(), "top-right");
+initSidebarToggle();
+initSidebarMeasure();
 
 // What zoom are we at?
 map.on("zoomend", () => {
