@@ -163,7 +163,10 @@
       "type": "geojson",
       "data": "./data/ky-erase.geojson"
     },
-
+    "superfund-sites": {
+      "type": "geojson",
+      "data": "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/FAC_Superfund_Site_Boundaries_EPA_Public/FeatureServer/0/query?where=STATE_CODE%3D%27KY%27&outFields=*&f=geojson"
+    },
     "ky-heritage-lands": {
       "type": "geojson",
       "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_KNP_Heritage_Land_Conservation_Fund_WGS84WM/MapServer/0/query?where=1%3D1&outFields=MANAME,UNIT_TYPE,MNG_INST,PUB_ACCESS,ACRES&f=geojson"
@@ -241,7 +244,7 @@
       "id": "aerial",
       "type": "raster",
       "source": "aerial",
-      "minzoom": 13,
+      "minzoom": 11,
       "layout": {
         "visibility": "visible"
       },
@@ -254,10 +257,10 @@
           ["linear"],
           ["zoom"],
           11,
-          0,
-          12,
+          0.1,
+          11.5,
           0.35,
-          13,
+          12,
           0.7,
           14,
           0.92,
@@ -551,6 +554,44 @@
         ]
       }
     },
+    {
+      "id": "Superfund Sites",
+      "type": "line",
+      "source": "superfund-sites",
+      "minzoom": 9.5,
+      "layout": {
+        "visibility": "none"
+      },
+      "paint": {
+        "line-color": "#ffaa00",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          11,
+          1.5,
+          12,
+          2.15,
+          14,
+          2.5
+        ],
+        "line-opacity": 0.8
+      }
+    },
+    {
+      "id": "Superfund Sites fill",
+      "type": "fill",
+      "source": "superfund-sites",
+      "minzoom": 9.5,
+      "layout": {
+        "visibility": "none"
+      },
+      "paint": {
+        "fill-color": "#ffaa00",
+        "fill-opacity": 0.6
+      }
+    },
+
     {
       "id": "Cemetery Fill",
       "type": "fill",

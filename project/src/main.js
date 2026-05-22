@@ -48,10 +48,13 @@ let measurePopup = null;
 
 let collectMode = false;
 let collectedFeatures = []; // array of GeoJSON Feature objects
-let pendingMarker = null;   // unsaved pin while sheet is open
+let pendingMarker = null; // unsaved pin while sheet is open
 let editingFeatureId = null;
 let suppressMapClick = false;
 const savedMarkers = new Map(); // featureId → maplibregl.Marker
+
+let spriteJson = null;
+let spriteImageEl = null;
 
 function setKmzStatus(message, isError = false) {
   const statusEl = document.getElementById("kmz-status");
@@ -582,6 +585,10 @@ const layerGroups = [
     layers: ["Industrial sites"],
   },
   {
+    label: "Superfund Sites",
+    layers: ["Superfund Sites", "Superfund Sites fill"],
+  },
+  {
     label: "Parks",
     layers: ["KY Parks Fill", "KY Parks Outline", "KY Parks Labels"],
   },
@@ -714,7 +721,9 @@ function initSidebarLayers(layerGroups) {
   const firstExisting = (ids) => ids.find((id) => map.getLayer(id));
   const isVisible = (ids) => {
     const first = firstExisting(ids);
-    return first ? map.getLayoutProperty(first, "visibility") !== "none" : false;
+    return first
+      ? map.getLayoutProperty(first, "visibility") !== "none"
+      : false;
   };
   const setVisible = (ids, visible) => {
     ids.forEach((id) => {
@@ -731,7 +740,10 @@ function initSidebarLayers(layerGroups) {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = isVisible(group.layers);
-    checkbox.addEventListener("change", () => setVisible(group.layers, checkbox.checked));
+    checkbox.addEventListener("change", () => {
+      setVisible(group.layers, checkbox.checked);
+      buildLegend();
+    });
 
     const text = document.createElement("span");
     text.className = "layer-row-label";
@@ -766,7 +778,8 @@ function initSidebarMeasure() {
       if (measureMode === "distance") {
         hint.textContent = "Click the map to add points. Click Clear to reset.";
       } else if (measureMode === "area") {
-        hint.textContent = "Click the map to add vertices. Click Clear to reset.";
+        hint.textContent =
+          "Click the map to add vertices. Click Clear to reset.";
       } else {
         hint.textContent = "Select a tool, then click the map.";
       }
@@ -932,7 +945,11 @@ function updateCollectSidebar() {
   const label = document.getElementById("collect-count-label");
   const exportBtn = document.getElementById("collect-export");
   const clearAllBtn = document.getElementById("collect-clear-all");
-  if (label) label.textContent = count === 0 ? "No points collected." : `${count} point${count === 1 ? "" : "s"} collected.`;
+  if (label)
+    label.textContent =
+      count === 0
+        ? "No points collected."
+        : `${count} point${count === 1 ? "" : "s"} collected.`;
   if (exportBtn) exportBtn.disabled = count === 0;
   if (clearAllBtn) clearAllBtn.disabled = count === 0;
 }
@@ -940,11 +957,16 @@ function updateCollectSidebar() {
 function openCollectSheet(lngLat, existingFeature = null) {
   editingFeatureId = existingFeature?.properties?.id ?? null;
 
-  document.getElementById("cf-name").value = existingFeature?.properties?.name ?? "";
-  document.getElementById("cf-site").value = existingFeature?.properties?.fieldSite ?? "";
-  document.getElementById("cf-khc").value = existingFeature?.properties?.khc ?? "";
-  document.getElementById("cf-address").value = existingFeature?.properties?.address ?? "";
-  document.getElementById("cf-desc").value = existingFeature?.properties?.description ?? "";
+  document.getElementById("cf-name").value =
+    existingFeature?.properties?.name ?? "";
+  document.getElementById("cf-site").value =
+    existingFeature?.properties?.fieldSite ?? "";
+  document.getElementById("cf-khc").value =
+    existingFeature?.properties?.khc ?? "";
+  document.getElementById("cf-address").value =
+    existingFeature?.properties?.address ?? "";
+  document.getElementById("cf-desc").value =
+    existingFeature?.properties?.description ?? "";
 
   const deleteBtn = document.getElementById("collect-delete");
   deleteBtn?.classList.toggle("hidden", !existingFeature);
@@ -977,7 +999,9 @@ function addSavedMarker(feature) {
   el.addEventListener("click", (e) => {
     e.stopPropagation();
     suppressMapClick = true;
-    setTimeout(() => { suppressMapClick = false; }, 80);
+    setTimeout(() => {
+      suppressMapClick = false;
+    }, 80);
     if (measureMode) return;
     openCollectSheet(
       { lat, lng },
@@ -999,17 +1023,22 @@ function handleCollectSave(e) {
   const lng = parseFloat(sheet.dataset.lng);
 
   const props = {
-    name:        document.getElementById("cf-name").value.trim(),
-    fieldSite:   document.getElementById("cf-site").value.trim(),
-    khc:         document.getElementById("cf-khc").value.trim(),
-    address:     document.getElementById("cf-address").value.trim(),
+    name: document.getElementById("cf-name").value.trim(),
+    fieldSite: document.getElementById("cf-site").value.trim(),
+    khc: document.getElementById("cf-khc").value.trim(),
+    address: document.getElementById("cf-address").value.trim(),
     description: document.getElementById("cf-desc").value.trim(),
   };
 
   if (editingFeatureId) {
-    const idx = collectedFeatures.findIndex((f) => f.properties.id === editingFeatureId);
+    const idx = collectedFeatures.findIndex(
+      (f) => f.properties.id === editingFeatureId,
+    );
     if (idx !== -1) {
-      collectedFeatures[idx].properties = { ...collectedFeatures[idx].properties, ...props };
+      collectedFeatures[idx].properties = {
+        ...collectedFeatures[idx].properties,
+        ...props,
+      };
     }
   } else {
     const id = generateId();
@@ -1028,9 +1057,14 @@ function handleCollectSave(e) {
       el.addEventListener("click", (ev) => {
         ev.stopPropagation();
         suppressMapClick = true;
-        setTimeout(() => { suppressMapClick = false; }, 80);
+        setTimeout(() => {
+          suppressMapClick = false;
+        }, 80);
         if (measureMode) return;
-        openCollectSheet({ lat, lng }, collectedFeatures.find((f) => f.properties.id === id));
+        openCollectSheet(
+          { lat, lng },
+          collectedFeatures.find((f) => f.properties.id === id),
+        );
       });
       savedMarkers.set(id, pendingMarker);
       pendingMarker = null; // don't remove it in closeCollectSheet
@@ -1054,7 +1088,10 @@ function handleCollectDelete() {
   collectedFeatures = collectedFeatures.filter((f) => f.properties.id !== id);
 
   const marker = savedMarkers.get(id);
-  if (marker) { marker.remove(); savedMarkers.delete(id); }
+  if (marker) {
+    marker.remove();
+    savedMarkers.delete(id);
+  }
 
   saveCollectCache(collectedFeatures).catch(console.error);
   updateCollectSidebar();
@@ -1063,7 +1100,9 @@ function handleCollectDelete() {
 
 function exportCollectGeoJSON() {
   const fc = { type: "FeatureCollection", features: collectedFeatures };
-  const blob = new Blob([JSON.stringify(fc, null, 2)], { type: "application/geo+json" });
+  const blob = new Blob([JSON.stringify(fc, null, 2)], {
+    type: "application/geo+json",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -1074,18 +1113,22 @@ function exportCollectGeoJSON() {
 
 function initCollect() {
   // Restore persisted points
-  loadCollectCache().then((features) => {
-    collectedFeatures = features;
-    collectedFeatures.forEach(addSavedMarker);
-    updateCollectSidebar();
-  }).catch(console.error);
+  loadCollectCache()
+    .then((features) => {
+      collectedFeatures = features;
+      collectedFeatures.forEach(addSavedMarker);
+      updateCollectSidebar();
+    })
+    .catch(console.error);
 
   // Sidebar toggle button
   const toggleBtn = document.getElementById("collect-toggle");
   toggleBtn?.addEventListener("click", () => {
     collectMode = !collectMode;
     toggleBtn.classList.toggle("active", collectMode);
-    toggleBtn.textContent = collectMode ? "⏹ Stop Collecting" : "📍 Start Collecting";
+    toggleBtn.textContent = collectMode
+      ? "⏹ Stop Collecting"
+      : "📍 Start Collecting";
     map.getCanvas().style.cursor = collectMode ? "crosshair" : "";
     if (!collectMode && pendingMarker) {
       pendingMarker.remove();
@@ -1095,23 +1138,354 @@ function initCollect() {
   });
 
   // Export button
-  document.getElementById("collect-export")?.addEventListener("click", exportCollectGeoJSON);
+  document
+    .getElementById("collect-export")
+    ?.addEventListener("click", exportCollectGeoJSON);
 
   // Clear all
-  document.getElementById("collect-clear-all")?.addEventListener("click", () => {
-    if (!confirm(`Clear all ${collectedFeatures.length} collected point(s)?`)) return;
-    savedMarkers.forEach((m) => m.remove());
-    savedMarkers.clear();
-    collectedFeatures = [];
-    clearCollectCache().catch(console.error);
-    updateCollectSidebar();
-    closeCollectSheet();
-  });
+  document
+    .getElementById("collect-clear-all")
+    ?.addEventListener("click", () => {
+      if (!confirm(`Clear all ${collectedFeatures.length} collected point(s)?`))
+        return;
+      savedMarkers.forEach((m) => m.remove());
+      savedMarkers.clear();
+      collectedFeatures = [];
+      clearCollectCache().catch(console.error);
+      updateCollectSidebar();
+      closeCollectSheet();
+    });
 
   // Bottom sheet form
-  document.getElementById("collect-form")?.addEventListener("submit", handleCollectSave);
-  document.getElementById("collect-cancel")?.addEventListener("click", closeCollectSheet);
-  document.getElementById("collect-delete")?.addEventListener("click", handleCollectDelete);
+  document
+    .getElementById("collect-form")
+    ?.addEventListener("submit", handleCollectSave);
+  document
+    .getElementById("collect-cancel")
+    ?.addEventListener("click", closeCollectSheet);
+  document
+    .getElementById("collect-delete")
+    ?.addEventListener("click", handleCollectDelete);
+}
+
+// ── Help modal ───────────────────────────────────────────────────────────────
+
+let _showHelpModal = null;
+
+function initHelpModal() {
+  const modal = document.getElementById("help-modal");
+  const closeBtn = document.getElementById("help-modal-close");
+  const gotItBtn = document.getElementById("help-modal-got-it");
+  const dontShowCheck = document.getElementById("help-dont-show");
+  const dontShowLabel = document.querySelector(".help-dont-show-label");
+
+  function showModal(showDontShow = true) {
+    modal?.classList.remove("hidden");
+    if (dontShowLabel) dontShowLabel.style.display = showDontShow ? "" : "none";
+    if (dontShowCheck) dontShowCheck.checked = false;
+  }
+
+  function hideModal() {
+    modal?.classList.add("hidden");
+    if (dontShowCheck?.checked) {
+      localStorage.setItem("pec-help-seen", "1");
+    }
+    if (dontShowLabel) dontShowLabel.style.display = "";
+  }
+
+  _showHelpModal = showModal;
+
+  closeBtn?.addEventListener("click", hideModal);
+  gotItBtn?.addEventListener("click", hideModal);
+
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) hideModal();
+  });
+
+  if (!localStorage.getItem("pec-help-seen")) {
+    setTimeout(() => showModal(true), 500);
+  }
+}
+
+class HelpControl {
+  onAdd() {
+    const btn = document.createElement("button");
+    btn.className = "help-ctrl-btn";
+    btn.type = "button";
+    btn.title = "Help";
+    btn.setAttribute("aria-label", "Help");
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M6 6.2C6.2 5.1 7 4.5 8 4.5C9.1 4.5 10 5.3 10 6.4C10 7.3 9.4 7.9 8.6 8.4C8.2 8.7 8 9 8 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="8" cy="11.5" r="0.85" fill="currentColor"/>
+    </svg>`;
+    btn.addEventListener("click", () => _showHelpModal?.(false));
+
+    this._container = document.createElement("div");
+    this._container.className = "maplibregl-ctrl maplibregl-ctrl-group";
+    this._container.appendChild(btn);
+    return this._container;
+  }
+
+  onRemove() {
+    this._container.parentNode?.removeChild(this._container);
+  }
+}
+
+// ── Legend ───────────────────────────────────────────────────────────────────
+
+async function loadSpriteData() {
+  try {
+    const spriteUrl = map.getStyle().sprite;
+    if (!spriteUrl) return;
+    const qIdx = spriteUrl.indexOf("?");
+    const base = qIdx >= 0 ? spriteUrl.slice(0, qIdx) : spriteUrl;
+    const query = qIdx >= 0 ? spriteUrl.slice(qIdx) : "";
+    const jsonUrl = base + ".json" + query;
+    const pngUrl = base + ".png" + query;
+
+    const jsonRes = await fetch(jsonUrl);
+    if (!jsonRes.ok) return;
+    spriteJson = await jsonRes.json();
+
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = pngUrl;
+    });
+    spriteImageEl = img;
+  } catch (err) {
+    console.warn("Legend: sprite load failed", err);
+  }
+}
+
+function extractPaintValue(layerId, property) {
+  try {
+    const val = map.getPaintProperty(layerId, property);
+    if (val === null || val === undefined) return null;
+    if (typeof val === "string" || typeof val === "number") return val;
+    if (Array.isArray(val)) {
+      const type = val[0];
+      if (["match", "case", "step", "interpolate"].includes(type)) {
+        return val[val.length - 1];
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function renderSpriteToCanvas(canvas, iconName) {
+  if (!spriteJson || !spriteImageEl || !spriteJson[iconName]) return false;
+  const info = spriteJson[iconName];
+  const ctx = canvas.getContext("2d");
+  canvas.width = 20;
+  canvas.height = 20;
+  const scale = Math.min(20 / info.width, 20 / info.height);
+  const dw = info.width * scale;
+  const dh = info.height * scale;
+  const dx = (20 - dw) / 2;
+  const dy = (20 - dh) / 2;
+  ctx.drawImage(spriteImageEl, info.x, info.y, info.width, info.height, dx, dy, dw, dh);
+  return true;
+}
+
+function parseMatchColors(expr) {
+  if (!Array.isArray(expr) || expr[0] !== "match") return null;
+  // ["match", input, val1, color1, val2, color2, ..., fallback]
+  const entries = [];
+  for (let i = 2; i < expr.length - 1; i += 2) {
+    const label = expr[i];
+    const color = expr[i + 1];
+    if (typeof color === "string") {
+      entries.push({ label: String(label), color });
+    }
+  }
+  const fallbackColor = expr[expr.length - 1];
+  return {
+    entries,
+    fallback: typeof fallbackColor === "string" ? fallbackColor : null,
+  };
+}
+
+function makeSwatch(swatchType, color) {
+  if (swatchType === "line") {
+    const el = document.createElement("div");
+    el.className = "legend-swatch-line";
+    el.style.background = color;
+    return el;
+  }
+  if (swatchType === "circle") {
+    const el = document.createElement("div");
+    el.className = "legend-swatch-circle";
+    el.style.background = color;
+    return el;
+  }
+  const el = document.createElement("div");
+  el.className = "legend-swatch";
+  el.style.background = color;
+  el.style.border = "1px solid rgba(0,0,0,0.15)";
+  return el;
+}
+
+function getLegendRows(group) {
+  const layerId = group.layers.find((id) => map.getLayer(id));
+  if (!layerId) return { type: "simple", label: group.label, iconEl: null };
+  const layer = map.getLayer(layerId);
+  if (!layer) return { type: "simple", label: group.label, iconEl: null };
+  const layerType = layer.type;
+
+  if (layerType === "symbol") {
+    const iconImage = map.getLayoutProperty(layerId, "icon-image");
+    const iconName = typeof iconImage === "string" ? iconImage : null;
+    if (iconName && spriteJson?.[iconName]) {
+      const canvas = document.createElement("canvas");
+      canvas.className = "legend-swatch-canvas";
+      renderSpriteToCanvas(canvas, iconName);
+      return { type: "simple", label: group.label, iconEl: canvas };
+    }
+    const color = extractPaintValue(layerId, "icon-color") ?? extractPaintValue(layerId, "text-color") ?? "#888";
+    const el = document.createElement("div");
+    el.className = "legend-swatch-circle";
+    el.style.cssText = `background:${typeof color === "string" ? color : "#888"};border:1.5px solid rgba(0,0,0,0.2)`;
+    return { type: "simple", label: group.label, iconEl: el };
+  }
+
+  let paintProp, swatchType;
+  if (layerType === "fill" || layerType === "fill-extrusion") {
+    paintProp = "fill-color";
+    swatchType = "fill";
+  } else if (layerType === "line") {
+    paintProp = "line-color";
+    swatchType = "line";
+  } else if (layerType === "circle") {
+    paintProp = "circle-color";
+    swatchType = "circle";
+  } else {
+    const el = document.createElement("div");
+    el.className = "legend-swatch";
+    el.style.background = "#aaa";
+    return { type: "simple", label: group.label, iconEl: el };
+  }
+
+  let paintExpr;
+  try {
+    paintExpr = map.getPaintProperty(layerId, paintProp);
+  } catch {
+    paintExpr = null;
+  }
+
+  const match = parseMatchColors(paintExpr);
+
+  if (!match || match.entries.length === 0) {
+    const color = typeof paintExpr === "string" ? paintExpr : "#ccc";
+    return { type: "simple", label: group.label, iconEl: makeSwatch(swatchType, color) };
+  }
+
+  if (match.entries.length > 12) {
+    const colors = match.entries.slice(0, 5).map((e) => e.color);
+    return { type: "multicolor", label: group.label, colors };
+  }
+
+  const rows = match.entries.map(({ label, color }) => ({
+    iconEl: makeSwatch(swatchType, color),
+    label,
+  }));
+  if (match.fallback) {
+    rows.push({ iconEl: makeSwatch(swatchType, match.fallback), label: "Other" });
+  }
+  return { type: "categorized", label: group.label, rows };
+}
+
+function buildLegend() {
+  const itemsEl = document.getElementById("legend-items");
+  if (!itemsEl) return;
+  itemsEl.innerHTML = "";
+
+  const firstExisting = (ids) => ids.find((id) => map.getLayer(id));
+  const isVisible = (ids) => {
+    const first = firstExisting(ids);
+    return first ? map.getLayoutProperty(first, "visibility") !== "none" : false;
+  };
+
+  const visibleGroups = layerGroups.filter((g) => isVisible(g.layers));
+
+  if (!visibleGroups.length) {
+    const empty = document.createElement("div");
+    empty.style.cssText = "padding:8px 10px;font-size:0.72rem;color:#888;";
+    empty.textContent = "No layers visible.";
+    itemsEl.appendChild(empty);
+    return;
+  }
+
+  visibleGroups.forEach((group) => {
+    const data = getLegendRows(group);
+
+    if (data.type === "simple") {
+      const row = document.createElement("div");
+      row.className = "legend-row";
+      if (data.iconEl) row.appendChild(data.iconEl);
+      const label = document.createElement("span");
+      label.className = "legend-row-label";
+      label.textContent = data.label;
+      label.title = data.label;
+      row.appendChild(label);
+      itemsEl.appendChild(row);
+    } else if (data.type === "categorized") {
+      const header = document.createElement("div");
+      header.className = "legend-group-header";
+      header.textContent = data.label;
+      itemsEl.appendChild(header);
+      data.rows.forEach(({ iconEl, label }) => {
+        const row = document.createElement("div");
+        row.className = "legend-sub-row";
+        if (iconEl) row.appendChild(iconEl);
+        const span = document.createElement("span");
+        span.className = "legend-row-label";
+        span.textContent = label;
+        span.title = label;
+        row.appendChild(span);
+        itemsEl.appendChild(row);
+      });
+    } else if (data.type === "multicolor") {
+      const row = document.createElement("div");
+      row.className = "legend-row";
+      const strip = document.createElement("div");
+      strip.className = "legend-multicolors";
+      data.colors.forEach((color) => {
+        const chip = document.createElement("div");
+        chip.className = "legend-multicolor-chip";
+        chip.style.background = color;
+        strip.appendChild(chip);
+      });
+      row.appendChild(strip);
+      const label = document.createElement("span");
+      label.className = "legend-row-label";
+      label.textContent = data.label;
+      label.title = data.label;
+      row.appendChild(label);
+      itemsEl.appendChild(row);
+    }
+  });
+}
+
+function initLegend() {
+  const panel = document.getElementById("legend-panel");
+  const hideBtn = document.getElementById("legend-hide-btn");
+  const restoreBtn = document.getElementById("legend-restore-btn");
+
+  hideBtn?.addEventListener("click", () => {
+    if (panel) panel.style.display = "none";
+    restoreBtn?.classList.remove("hidden");
+  });
+
+  restoreBtn?.addEventListener("click", () => {
+    if (panel) panel.style.display = "";
+    restoreBtn?.classList.add("hidden");
+  });
 }
 
 map.on("load", async () => {
@@ -1150,8 +1524,11 @@ map.on("load", async () => {
 
   attachKmzUploadListener();
   ensureMeasureLayers();
+  await loadSpriteData();
   initSidebarLayers(layerGroups);
   initCollect();
+  buildLegend();
+  initLegend();
 
   // did sprites load?
   // console.log("all images:", map.listImages());
@@ -1211,6 +1588,8 @@ const popupLayerConfig = [
     id: "geology",
     label: "Simplified Geology",
   },
+  { id: "Superfund Sites fill", label: "Superfund Sites" },
+  { id: "Noise polygons", label: "BTS 24-hr Average Noise Level" },
 ];
 
 const popupLayerIds = popupLayerConfig.map((layer) => layer.id);
@@ -1223,7 +1602,9 @@ map.on("click", (e) => {
   if (suppressMapClick) return;
 
   if (collectMode) {
-    if (pendingMarker) { pendingMarker.remove(); }
+    if (pendingMarker) {
+      pendingMarker.remove();
+    }
     const el = createPinElement(true);
     pendingMarker = new maplibregl.Marker({ element: el, anchor: "bottom" })
       .setLngLat(e.lngLat)
@@ -1324,9 +1705,11 @@ map.addControl(
   }),
   "top-right",
 );
+map.addControl(new HelpControl(), "top-right");
 
 initSidebarToggle();
 initSidebarMeasure();
+initHelpModal();
 
 // What zoom are we at?
 map.on("zoomend", () => {
