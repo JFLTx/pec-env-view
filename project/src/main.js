@@ -1590,6 +1590,7 @@ const popupLayerConfig = [
   },
   { id: "Superfund Sites fill", label: "Superfund Sites" },
   { id: "Noise polygons", label: "BTS 24-hr Average Noise Level" },
+  { id: "KY Parks Fill", label: "KY Parks" },
 ];
 
 const popupLayerIds = popupLayerConfig.map((layer) => layer.id);
