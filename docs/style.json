@@ -204,6 +204,12 @@
       "type": "geojson",
       "data": "https://kygisserver.ky.gov/arcgis/rest/services/WGS84WM_Services/Ky_Industrial_Site_Boundaries_WGS84WM/MapServer/0/query?where=1%3D1&outFields=SITE_ID,MAPNAME,ACRES&f=geojson"
     },
+    "openpois": {
+      "type": "vector",
+      "url": "pmtiles://https://data.source.coop/henryspatialanalysis/openpois/latest/conflated-pmtiles/conflated.pmtiles",
+      "minzoom": 10,
+      "attribution": "© <a href='https://github.com/henryspatialanalysis/openpois' target='_blank'>OpenPOIs</a> | © <a href='https://www.openstreetmap.org/copyright' target='_blank'>OpenStreetMap contributors</a> | © <a href='https://overturemaps.org' target='_blank'>Overture Maps Foundation</a> (ODbL)"
+    },
     "terrainSource": {
       "type": "raster-dem",
       "url": "terrain.json",
@@ -1860,6 +1866,28 @@
       "filter": ["in", "class", "state", "province"]
     },
     {
+      "id": "openpois-labels",
+      "type": "symbol",
+      "source": "openpois",
+      "source-layer": "conflated_pois",
+      "minzoom": 15,
+      "layout": {
+        "visibility": "visible",
+        "text-field": ["get", "name"],
+        "text-font": ["Libre Franklin Regular"],
+        "text-size": 11,
+        "text-anchor": "center",
+        "text-max-width": 8,
+        "text-allow-overlap": false
+      },
+      "paint": {
+        "text-color": "#333333",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.5
+      },
+      "filter": ["has", "name"]
+    },
+    {
       "id": "aoi-mask",
       "type": "fill",
       "source": "mask",
@@ -1871,6 +1899,7 @@
         "fill-opacity": 0.95
       }
     },
+
     {
       "id": "nleb-shadow",
       "maxzoom": 10,

@@ -573,6 +573,10 @@ const layerGroups = [
     ],
   },
   {
+    label: "Points of Interest",
+    layers: ["openpois-labels"],
+  },
+  {
     label: "Water",
     layers: ["Water-fill", "Waterway", "River-labels", "Lakeline-labels"],
   },
@@ -1289,7 +1293,17 @@ function renderSpriteToCanvas(canvas, iconName) {
   const dh = info.height * scale;
   const dx = (20 - dw) / 2;
   const dy = (20 - dh) / 2;
-  ctx.drawImage(spriteImageEl, info.x, info.y, info.width, info.height, dx, dy, dw, dh);
+  ctx.drawImage(
+    spriteImageEl,
+    info.x,
+    info.y,
+    info.width,
+    info.height,
+    dx,
+    dy,
+    dw,
+    dh,
+  );
   return true;
 }
 
@@ -1347,7 +1361,10 @@ function getLegendRows(group) {
       renderSpriteToCanvas(canvas, iconName);
       return { type: "simple", label: group.label, iconEl: canvas };
     }
-    const color = extractPaintValue(layerId, "icon-color") ?? extractPaintValue(layerId, "text-color") ?? "#888";
+    const color =
+      extractPaintValue(layerId, "icon-color") ??
+      extractPaintValue(layerId, "text-color") ??
+      "#888";
     const el = document.createElement("div");
     el.className = "legend-swatch-circle";
     el.style.cssText = `background:${typeof color === "string" ? color : "#888"};border:1.5px solid rgba(0,0,0,0.2)`;
@@ -1382,7 +1399,11 @@ function getLegendRows(group) {
 
   if (!match || match.entries.length === 0) {
     const color = typeof paintExpr === "string" ? paintExpr : "#ccc";
-    return { type: "simple", label: group.label, iconEl: makeSwatch(swatchType, color) };
+    return {
+      type: "simple",
+      label: group.label,
+      iconEl: makeSwatch(swatchType, color),
+    };
   }
 
   if (match.entries.length > 12) {
@@ -1395,7 +1416,10 @@ function getLegendRows(group) {
     label,
   }));
   if (match.fallback) {
-    rows.push({ iconEl: makeSwatch(swatchType, match.fallback), label: "Other" });
+    rows.push({
+      iconEl: makeSwatch(swatchType, match.fallback),
+      label: "Other",
+    });
   }
   return { type: "categorized", label: group.label, rows };
 }
@@ -1408,7 +1432,9 @@ function buildLegend() {
   const firstExisting = (ids) => ids.find((id) => map.getLayer(id));
   const isVisible = (ids) => {
     const first = firstExisting(ids);
-    return first ? map.getLayoutProperty(first, "visibility") !== "none" : false;
+    return first
+      ? map.getLayoutProperty(first, "visibility") !== "none"
+      : false;
   };
 
   const visibleGroups = layerGroups.filter((g) => isVisible(g.layers));
